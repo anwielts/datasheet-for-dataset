@@ -11,7 +11,7 @@ class Datasheet:
         pass
         # define input data domain
         # define layout to use
-        # define strucutre to use
+        # define structure to use
 
     def _run_analyses():
         pass
