@@ -7,7 +7,7 @@ name = "dfd"
 version = "0.0.1"
 dependencies = [
     "pandas",
-    "mumpy",
+    "numpy",
     "polars",
 ]
 requires-python = ">= 3.10"
