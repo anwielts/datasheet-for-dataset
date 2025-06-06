@@ -7,7 +7,7 @@ on:
     branches: ["main", "develop"]
 
 jobs:
-  build-matrix:
+  test-and-lint-matrix:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     strategy:
@@ -36,7 +36,7 @@ jobs:
         run: |
           hatch run test 
 
-  build-single:
+  test-and-lint-single:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
