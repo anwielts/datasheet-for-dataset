@@ -12,15 +12,11 @@ dependencies = [
 ]
 requires-python = ">= 3.10"
 authors = [
-  {name = "Pradyun Gedam", email = "pradyun@example.com"},
-  {name = "Tzu-Ping Chung", email = "tzu-ping@example.com"},
-  {name = "Another person"},
-  {email = "different.person@example.com"},
+  {name = "anwielts", email = "52626848+anwielts@users.noreply.github.com"},
+  {name = "Flippchen", email = "91947480+flippchen@users.noreply.github.com"},
 ]
-maintainers = [
-  {name = "Brett Cannon", email = "brett@example.com"}
-]
-description = "Lovely Spam! Wonderful Spam!"
+
+description = "A Python package for creating automated datasheets from different data sources."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -44,5 +40,5 @@ dependencies = ["pytest"]
 
 
 [project.urls]
-Homepage = "https://example.com"
-Repository = "https://github.com/me/spam.git"
+Homepage = "https://github.com/anwielts/datasheet-for-dataset"
+Repository = "https://github.com/anwielts/datasheet-for-dataset"
