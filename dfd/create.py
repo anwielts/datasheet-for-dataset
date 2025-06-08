@@ -1,13 +1,22 @@
 """Entry point for datasheet creation"""
-from dataset import ImageAnalyses, SoundAnalyses, TabularAnalyses
-from datasheet.layout import BaseLayout, SafetyEU
-from datasheet.structures import HumanDatasheet, NonHumanDatasheet
+import pandas as pd
+import polars as pl
+from pydantic import BaseModel
 
-from utils import store_as_html, store_as_pdf
+from dfd.dataset import ImageAnalyses, SoundAnalyses, TabularAnalyses
+from dfd.datasheet.layout import BaseLayout, SafetyEU
+from dfd.datasheet.structures import HumanDatasheet, NonHumanDatasheet
+
+from dfd.utils import store_as_html, store_as_pdf
+
+
+class Data(BaseModel):
+    dataset: pd.DataFrame | pl.DataFrame
 
 
 class Datasheet:
-    def __init__(self):
+    def __init__(self, data: Data):
+        self.data = data
         pass
         # define input data domain
         # define layout to use
@@ -19,11 +28,11 @@ class Datasheet:
 
     def _setup_layout():
         pass
-        # setup sepcified layout
+        # setup specified layout
 
     def _create_structure():
         pass
-        # setup sepcified structure
+        # setup specified structure
 
     def create_datasheet(self):
         pass

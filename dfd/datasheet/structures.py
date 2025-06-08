@@ -1,4 +1,10 @@
 """Defines datasheet structures"""
+from pydantic import BaseModel
+
+
+class Section(BaseModel):
+    heading: str
+    qa_pair: list[tuple[str, str]]
 
 
 class BaseDatasheet:

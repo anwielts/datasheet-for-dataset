@@ -4,22 +4,22 @@
 class BaseAnalyses:
     def __init__(self):
         pass
-        # Define base analyses whoch should be run regardless of the data domain
+        # Define base analyses which should be run regardless of the data domain
 
 
 class ImageAnalyses:
     def __init__(self):
         pass
-        # Define base analyses whoch should be run on image datasets
+        # Define base analyses which should be run on image datasets
 
 
 class SoundAnalyses:
     def __init__(self):
         pass
-        # Define base analyses whoch should be run on sound datasets
+        # Define base analyses which should be run on sound datasets
 
 
 class TabularAnalyses:
     def __init__(self):
         pass
-        # Define base analyses whoch should be run on tabular datasets
+        # Define base analyses which should be run on tabular datasets
