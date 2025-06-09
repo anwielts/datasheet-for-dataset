@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "dfd"
+name = "data-sheet-for-dataset"
 version = "0.0.1"
 dependencies = [
     "pandas",
