@@ -1,11 +1,11 @@
 name: Build and Publish
 
 on:
+  workflow_dispatch:
   push:
     branches: ["**"]
   release:
     types: [published]
-  workflow_dispatch:
 
 permissions:
   contents: read
