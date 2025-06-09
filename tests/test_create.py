@@ -1,5 +1,6 @@
 import pandas as pd
 import polars as pl
+import pytest
 
 from dfd.create import Datasheet
 
@@ -16,4 +17,5 @@ def test_datasheet_creation():
     polars_based_datasheet = Datasheet(data=df_pl)
 
     # should raise an error
-    dict_based_datasheet = Datasheet(data=d)
+    with pytest.raises(ValueError):
+        dict_based_datasheet = Datasheet(data=d)

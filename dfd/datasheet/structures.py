@@ -8,8 +8,20 @@ class Section(BaseModel):
 
 
 class BaseDatasheet:
-    def __init__(self):
-        pass
+    def __init__(self, motivation: Section, 
+                 composition: Section, 
+                 collection_process: Section, 
+                 processing_steps: Section, 
+                 uses: Section, 
+                 distribution: Section, 
+                 maintenance: Section):
+        self.motivation = motivation
+        self.composition = composition
+        self.collection_process = collection_process
+        self.processing_steps = processing_steps
+        self.uses = uses
+        self.distribution = distribution
+        self.maintenance = maintenance
         # Define base structure content such as
         # chapters
         # basic infos such as contact persons, org, ...
