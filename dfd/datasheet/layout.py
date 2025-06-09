@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 class Section(BaseModel):
     heading: str
-    subtitle_text_pair: list[tuple[str, str]]
 
 
 def _check_for_required_sections(sections: list[Section], required_sections: list[str]):
