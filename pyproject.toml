@@ -20,7 +20,7 @@ description = "A Python package for creating automated datasheets from different
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
-keywords = ["spam", "eggs"]
+keywords = ["data", "datasheet", "dataset", "automation", "pandas", "polars"]
 classifiers = [
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
