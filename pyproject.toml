@@ -16,9 +16,6 @@ authors = [
   {name = "Flippchen", email = "91947480+flippchen@users.noreply.github.com"},
 ]
 
-[tool.hatch.build.targets.wheel]
-packages = ["dfd"]
-
 description = "A Python package for creating automated datasheets from different data sources."
 readme = "README.md"
 license = "MIT"
@@ -45,3 +42,6 @@ dependencies = ["pytest"]
 [project.urls]
 Homepage = "https://github.com/anwielts/datasheet-for-dataset"
 Repository = "https://github.com/anwielts/datasheet-for-dataset"
+
+[tool.hatch.build.targets.wheel]
+packages = ["dfd"]
