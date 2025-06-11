@@ -29,7 +29,7 @@ classifiers = [
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "flake8",
+    "ruff",
 ]
 
 [tool.hatch.envs.default.scripts]
