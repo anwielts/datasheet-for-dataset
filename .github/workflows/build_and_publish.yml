@@ -4,6 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches: ["**"]
+  pull_request:
+    branches: ["**"]
   release:
     types: [published]
 
@@ -61,6 +63,7 @@ jobs:
     name: Publish to testPyPI
     runs-on: ubuntu-latest
     needs: build
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
 
     environment:
       name: testpypi
