@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "datasheet-for-dataset"
+version = "0.0.2"
+dependencies = [
+    "pandas",
+    "numpy",
+    "polars",
+]
+requires-python = ">= 3.10"
+authors = [
+  {name = "anwielts", email = "52626848+anwielts@users.noreply.github.com"},
+  {name = "Flippchen", email = "91947480+flippchen@users.noreply.github.com"},
+]
+
+description = "A Python package for creating automated datasheets from different data sources."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["data", "datasheet", "dataset", "automation", "pandas", "polars"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest"
+
+[tool.hatch.envs.default]
+dependencies = ["pytest"]
+
+
+[project.urls]
+Homepage = "https://github.com/anwielts/datasheet-for-dataset"
+Repository = "https://github.com/anwielts/datasheet-for-dataset"
+
+[tool.hatch.build.targets.wheel]
+packages = ["dfd"]

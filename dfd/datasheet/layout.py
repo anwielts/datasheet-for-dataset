@@ -9,6 +9,6 @@ class BaseLayout:
 
 class SafetyEU:
     def __init__(self):
-        pass
-        """Define the layout in such a way that is resembles the material 
-        security datasheet for materials and chemicals needed in the EU"""
+        """Define the layout in such a way that is resembles the material
+        security datasheet for materials and chemicals needed in the EU
+        """

@@ -1,9 +1,5 @@
 """Entry point for datasheet creation"""
-from dataset import ImageAnalyses, SoundAnalyses, TabularAnalyses
-from datasheet.layout import BaseLayout, SafetyEU
-from datasheet.structures import HumanDatasheet, NonHumanDatasheet
 
-from utils import store_as_html, store_as_pdf
 
 
 class Datasheet:
