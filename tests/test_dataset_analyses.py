@@ -2,7 +2,7 @@ import pandas as pd
 import polars as pl
 import pytest
 
-from dfd.create import Datasheet
+from dfd.dataset.analyses import TabularDataContext, PolarsTabularAnalyses, PandasTabularAnalyses
 from dfd.dataset.analyses import TabularStatistics
 
 
@@ -19,14 +19,11 @@ tab_stats_pd = [TabularStatistics(column_name='a', count=2.0, highest_quantile=1
              TabularStatistics(column_name='b', count=2.0, highest_quantile=None, middle_quantile=None, lowest_quantile=None, max=None, min=None, mean=None, std=None)]
 
 
-def test_datasheet_creation():
-    # should both work fine
-    polars_based_datasheet = Datasheet(data=df_pl)
-    polars_based_datasheet.data_statistics == tab_stats_pl
+def test_tabular_analyses():
+    context = TabularDataContext(PolarsTabularAnalyses())
+    stats_structure_pl = context.calculate_tabular_statistics(df_pl)
+    assert stats_structure_pl == tab_stats_pl
 
-    pandas_based_datasheet = Datasheet(data=df_pd)
-    pandas_based_datasheet.data_statistics == tab_stats_pd
-
-    # should raise an error
-    with pytest.raises(ValueError):
-        dict_based_datasheet = Datasheet(data=d)
+    context = TabularDataContext(PandasTabularAnalyses())
+    stats_structure_pd = context.calculate_tabular_statistics(df_pd)
+    assert stats_structure_pd == tab_stats_pd
