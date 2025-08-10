@@ -18,89 +18,121 @@ class TabularStatistics(BaseModel):
     mean: float | None = None
     std: float | None = None
 
+TabularDataType = Union[pd.DataFrame, pl.DataFrame]
+
 
 class BaseAnalyses:
     def __init__(self):
-        pass
         # Define base analyses which should be run regardless of the data domain
+        pass
 
 
 class ImageAnalyses:
     def __init__(self):
-        pass
         # Define base analyses which should be run on image datasets
+        pass
 
 
 class SoundAnalyses:
     def __init__(self):
-        pass
         # Define base analyses which should be run on sound datasets
-
-
-TabularDataType = Union[pd.DataFrame, pl.DataFrame]
+        pass
 
 
 class TabularAnalysesStrategy(ABC):
-    """
-    The Strategy interface declares operations common to all supported versions
-    of some algorithm.
-
-    The Context uses this interface to call the algorithm defined by Concrete
-    Strategies.
-    """
-
+    """Tabular analyses strategy interface defining common methods for all tabular analyses."""
     @abstractmethod
-    def describe(self, data: TabularDataType):
+    def describe(self, data: TabularDataType) -> None:
+        """Describes the tabular data.
+
+        Args:
+            data (TabularDataType): The input tabular data to be analyzed.
+
+        Returns:
+            None
+        """
         pass
 
 
 class TabularDataContext():
-    """
-    The Context defines the interface of interest to clients.
-    """
+    """Tabular data context defining the interfaces to clients.
 
+    Attributes:
+        _strategy (TabularAnalysesStrategy): The strategy used for calculating tabular statistics.
+    """
     def __init__(self, strategy: TabularAnalysesStrategy) -> None:
-        """
-        Usually, the Context accepts a strategy through the constructor, but
-        also provides a setter to change it at runtime.
-        """
-
+        """Initialize a new instance of TabularDataContext with the specified strategy."""
         self._strategy = strategy
+
 
     @property
     def strategy(self) -> TabularAnalysesStrategy:
-        """
-        The Context maintains a reference to one of the Strategy objects. The
-        Context does not know the concrete class of a strategy. It should work
-        with all strategies via the Strategy interface.
-        """
+        """Get the current strategy used for calculating tabular statistics.
 
+        Returns:
+            TabularAnalysesStrategy: The current strategy.
+        """
         return self._strategy
+
 
     @strategy.setter
     def strategy(self, strategy: TabularAnalysesStrategy) -> None:
-        """
-        Usually, the Context allows replacing a Strategy object at runtime.
-        """
+        """Set a new strategy for calculating tabular statistics.
 
+        Args:
+            strategy (TabularAnalysesStrategy): A tabular analysis strategy.
+
+        Returns:
+            None
+        """
         self._strategy = strategy
 
+
     def calculate_tabular_statistics(self, data: TabularDataType) -> None:
-        """
-        The Context delegates some work to the Strategy object instead of
-        implementing multiple versions of the algorithm on its own.
+        """Calculate and return the statistical information of the given tabular data.
+
+        Args:
+            data (TabularDataType): The data for which to calculate statistics.
+
+        Returns:
+            The result of the dedicatedly implemented analysis description method.
         """
         result = self._strategy.describe(data)
         return result
 
 
 class PolarsTabularAnalyses(TabularAnalysesStrategy):
-    def describe(self, data: pl.DataFrame) -> List[TabularStatistics]:
+    """Polars-based implementation of Tabular Analyses Strategy.
+
+    This class extends the `TabularAnalysesStrategy` to analyze tabular data using polars.
+    """
+    def describe(self, data: pl.DataFrame) -> list[TabularStatistics]:
+        """
+        Describes the given dataframe by calculating various statistical measures such as count,
+        mean, standard deviation, min, max, and 23%/50%/75% quantiles.
+
+        Parameters:
+            data (pl.DataFrame): The input Polars DataFrame to be analyzed.
+
+        Returns:
+            list[TabularStatistics]: A list of TabularStatistics objects containing
+                                    computed statistics for each column.
+        """
         statistics = data.describe()
         stats_structured =  self._harmonized_statistics_structure(statistics)
         return stats_structured
 
-    def _harmonized_statistics_structure(self, statistics_data: pl.DataFrame) -> List[TabularStatistics]:
+
+    def _harmonized_statistics_structure(self, statistics_data: pl.DataFrame) -> list[TabularStatistics]:
+        """
+        Constructs a structured representation of the given statistics data.
+
+        Parameters:
+            statistics_data (pl.DataFrame): The input DataFrame containing statistical information.
+
+        Returns:
+            list[TabularStatistics]: A list of TabularStatistics objects.
+        """
         tabular_statistics = []
         for column in statistics_data.columns:
             if column != "statistic":
@@ -138,12 +170,34 @@ class PolarsTabularAnalyses(TabularAnalysesStrategy):
 
 
 class PandasTabularAnalyses(TabularAnalysesStrategy):
-    def describe(self, data: pd.DataFrame) -> TabularStatistics:
+    """Pandas-based implementation of Tabular Analyses Strategy.
+
+    This class extends the `TabularAnalysesStrategy` to analyze tabular data using pandas.
+    """
+    def describe(self, data: pd.DataFrame) -> list[TabularStatistics]:
+        """Describe the given DataFrame and return a list of statistics.
+
+        Args:
+            data (pd.DataFrame): The input DataFrame for analysis.
+
+        Returns:
+            list[TabularStatistics]: A list of tabular statistics including count, highest quantile,
+                                    middle quantile, lowest quantile, maximum, minimum, mean, and standard deviation.
+        """
         statistics = data.describe(include='all')
         stats_structured =  self._harmonized_statistics_structure(statistics)
         return stats_structured
-    
-    def _harmonized_statistics_structure(self, statistics_data: pd.DataFrame) -> TabularStatistics:
+
+
+    def _harmonized_statistics_structure(self, statistics_data: pd.DataFrame) -> list[TabularStatistics]:
+        """Harmonize the pandas DataFrame statistics into a structured list of TabularStatistics.
+
+        Args:
+            statistics_data (pd.DataFrame): The input pandas DataFrame containing statistical data.
+
+        Returns:
+            list[TabularStatistics]: A list of structured tabular statistics.
+        """
         tabular_statistics = []
         statistics_data = statistics_data.where(statistics_data.notnull(), None)
         for column in statistics_data:
