@@ -4,11 +4,12 @@ build-backend = "hatchling.build"
 
 [project]
 name = "datasheet-for-dataset"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
     "pandas",
     "numpy",
     "polars",
+    "pydantic==2.11.5"
 ]
 requires-python = ">= 3.10"
 authors = [

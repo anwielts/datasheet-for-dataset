@@ -1,5 +1,4 @@
 """Entry point for datasheet creation"""
-
 import pandas as pd
 import polars as pl
 
