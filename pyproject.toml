@@ -45,3 +45,8 @@ Repository = "https://github.com/anwielts/datasheet-for-dataset"
 
 [tool.hatch.build.targets.wheel]
 packages = ["dfd"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.8",
+]

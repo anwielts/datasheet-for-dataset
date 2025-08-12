@@ -1,14 +1,13 @@
 """Entry point for datasheet creation"""
-from typing import Union
 
 import pandas as pd
 import polars as pl
 
-from dfd.dataset import TabularDataContext, PolarsTabularAnalyses, PandasTabularAnalyses
+from dfd.dataset import TabularDataContext
 
 
 class Datasheet:
-    def __init__(self, data: Union[pd.DataFrame, pl.DataFrame], analysis: None,layout=None):
+    def __init__(self, data: pd.DataFrame | pl.DataFrame, analysis: None, layout=None):
         self.analysis = analysis
         self.layout = layout
         self.data = data

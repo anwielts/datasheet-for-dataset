@@ -1,6 +1,5 @@
 """Analyses to run depending on the type of data domain"""
 from abc import ABC, abstractmethod
-from typing import Union, List
 
 import pandas as pd
 import polars as pl
@@ -13,12 +12,12 @@ class TabularStatistics(BaseModel):
     highest_quantile: float | None = None # 75% percentile
     middle_quantile: float | None = None # 50% percentile
     lowest_quantile: float | None = None # 25% percentile
-    max: float | None = None
-    min: float | None = None
-    mean: float | None = None
-    std: float | None = None
+    max_val: float | None = None
+    min_val: float | None = None
+    mean_val: float | None = None
+    std_val: float | None = None
 
-TabularDataType = Union[pd.DataFrame, pl.DataFrame]
+TabularDataType = pd.DataFrame | pl.DataFrame
 
 
 class BaseAnalyses:
@@ -51,10 +50,9 @@ class TabularAnalysesStrategy(ABC):
         Returns:
             None
         """
-        pass
 
 
-class TabularDataContext():
+class TabularDataContext:
     """Tabular data context defining the interfaces to clients.
 
     Attributes:
@@ -97,8 +95,7 @@ class TabularDataContext():
         Returns:
             The result of the dedicatedly implemented analysis description method.
         """
-        result = self._strategy.describe(data)
-        return result
+        return self._strategy.describe(data)
 
 
 class PolarsTabularAnalyses(TabularAnalysesStrategy):
@@ -119,8 +116,7 @@ class PolarsTabularAnalyses(TabularAnalysesStrategy):
                                     computed statistics for each column.
         """
         statistics = data.describe()
-        stats_structured =  self._harmonized_statistics_structure(statistics)
-        return stats_structured
+        return self._harmonized_statistics_structure(statistics)
 
 
     def _harmonized_statistics_structure(self, statistics_data: pl.DataFrame) -> list[TabularStatistics]:
@@ -135,35 +131,35 @@ class PolarsTabularAnalyses(TabularAnalysesStrategy):
         """
         tabular_statistics = []
         for column in statistics_data.columns:
-            if column != "statistic":
-                count = statistics_data.filter(pl.col("statistic") == "count").select(pl.col(column))
-                highest_quantile = statistics_data.filter(pl.col("statistic") == "75%").select(pl.col(column))
-                middle_quantile = statistics_data.filter(pl.col("statistic") == "50%").select(pl.col(column))
-                lowest_quantile = statistics_data.filter(pl.col("statistic") == "25%").select(pl.col(column))
-                max = statistics_data.filter(pl.col("statistic") == "max").select(pl.col(column))
-                min = statistics_data.filter(pl.col("statistic") == "min").select(pl.col(column))
+            if column != 'statistic':
+                count = statistics_data.filter(pl.col('statistic') == 'count').select(pl.col(column))
+                highest_quantile = statistics_data.filter(pl.col('statistic') == '75%').select(pl.col(column))
+                middle_quantile = statistics_data.filter(pl.col('statistic') == '50%').select(pl.col(column))
+                lowest_quantile = statistics_data.filter(pl.col('statistic') == '25%').select(pl.col(column))
+                max_val_col = statistics_data.filter(pl.col('statistic') == 'max').select(pl.col(column))
+                min_val_col = statistics_data.filter(pl.col('statistic') == 'min').select(pl.col(column))
                 # polars sets max and min in categorical columns not how we want it so fix them here as None if they are srtings
-                if isinstance(max.item(), str) and isinstance(min.item(), str):
-                    max = None
-                    min = None
+                if isinstance(max_val_col.item(), str) and isinstance(min_val_col.item(), str):
+                    max_val = None
+                    min_val = None
                 else:
-                    max = max.item()
-                    min = min.item()
+                    max_val = max_val_col.item()
+                    min_val = min_val_col.item()
 
-                mean = statistics_data.filter(pl.col("statistic") == "mean").select(pl.col(column))
-                std = statistics_data.filter(pl.col("statistic") == "std").select(pl.col(column))
-                
+                mean_val_col = statistics_data.filter(pl.col('statistic') == 'mean').select(pl.col(column))
+                std_val_col = statistics_data.filter(pl.col('statistic') == 'std').select(pl.col(column))
+
                 tab_stats = TabularStatistics(column_name=column,
                                             count=count.item(),
                                             highest_quantile = highest_quantile.item(),
                                             middle_quantile = middle_quantile.item(),
                                             lowest_quantile = lowest_quantile.item(),
-                                            max = max,
-                                            min = min,
-                                            mean = mean.item(),
-                                            std = std.item()
+                                            max_val = max_val,
+                                            min_val = min_val,
+                                            mean_val = mean_val_col.item(),
+                                            std_val = std_val_col.item()
                                             )
-                
+
                 tabular_statistics.append(tab_stats)
 
         return tabular_statistics
@@ -185,8 +181,7 @@ class PandasTabularAnalyses(TabularAnalysesStrategy):
                                     middle quantile, lowest quantile, maximum, minimum, mean, and standard deviation.
         """
         statistics = data.describe(include='all')
-        stats_structured =  self._harmonized_statistics_structure(statistics)
-        return stats_structured
+        return self._harmonized_statistics_structure(statistics)
 
 
     def _harmonized_statistics_structure(self, statistics_data: pd.DataFrame) -> list[TabularStatistics]:
@@ -199,26 +194,26 @@ class PandasTabularAnalyses(TabularAnalysesStrategy):
             list[TabularStatistics]: A list of structured tabular statistics.
         """
         tabular_statistics = []
-        statistics_data = statistics_data.where(statistics_data.notnull(), None)
+        statistics_data = statistics_data.where(statistics_data.notna(), None)
         for column in statistics_data:
-            count = statistics_data[column].loc[["count"]]
-            highest_quantile = statistics_data[column].loc[["75%"]]
-            middle_quantile = statistics_data[column].loc[["50%"]]
-            lowest_quantile = statistics_data[column].loc[["25%"]]
-            max = statistics_data[column].loc[["max"]]
-            min = statistics_data[column].loc[["min"]]
-            mean = statistics_data[column].loc[["mean"]]
-            std = statistics_data[column].loc[["std"]]
+            count = statistics_data[column].loc[['count']]
+            highest_quantile = statistics_data[column].loc[['75%']]
+            middle_quantile = statistics_data[column].loc[['50%']]
+            lowest_quantile = statistics_data[column].loc[['25%']]
+            max_val_col = statistics_data[column].loc[['max']]
+            min_val_col = statistics_data[column].loc[['min']]
+            mean_val_col = statistics_data[column].loc[['mean']]
+            std_val_col = statistics_data[column].loc[['std']]
 
             tab_stats = TabularStatistics(column_name=column,
                                                 count=count.item(),
                                                 highest_quantile = highest_quantile.item(),
                                                 middle_quantile = middle_quantile.item(),
                                                 lowest_quantile = lowest_quantile.item(),
-                                                max = max.item(),
-                                                min = min.item(),
-                                                mean = mean.item(),
-                                                std = std.item()
+                                                max_val = max_val_col.item(),
+                                                min_val = min_val_col.item(),
+                                                mean_val = mean_val_col.item(),
+                                                std_val = std_val_col.item()
                                                 )
             tabular_statistics.append(tab_stats)
 
