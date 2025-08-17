@@ -122,7 +122,7 @@ For questions, ideas, or issues, please open a GitHub issue; for sensitive secur
 [contributors-url]: https://github.com/anwielts/datasheet-for-dataset/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/anwielts/datasheet-for-dataset.svg?style=for-the-badge
 [forks-url]: https://github.com/anwielts/datasheet-for-dataset/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
+[stars-shield]: https://img.shields.io/github/stars/anwielts/datasheet-for-dataset.svg?style=for-the-badge
+[stars-url]: https://github.com/anwielts/datasheet-for-dataset/stargazers
+[issues-shield]: https://img.shields.io/github/issues/anwielts/datasheet-for-dataset.svg?style=for-the-badge
+[issues-url]: https://github.com/anwielts/datasheet-for-dataset/issues
