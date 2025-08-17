@@ -126,3 +126,5 @@ For questions, ideas, or issues, please open a GitHub issue; for sensitive secur
 [stars-url]: https://github.com/anwielts/datasheet-for-dataset/stargazers
 [issues-shield]: https://img.shields.io/github/issues/anwielts/datasheet-for-dataset.svg?style=for-the-badge
 [issues-url]: https://github.com/anwielts/datasheet-for-dataset/issues
+[license-shield]: https://img.shields.io/github/license/anwielts/datasheet-for-dataset.svg?style=for-the-badge
+[license-url]: https://github.com/anwielts/datasheet-for-dataset/blob/main/LICENSE
