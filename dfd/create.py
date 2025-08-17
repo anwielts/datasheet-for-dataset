@@ -10,21 +10,21 @@ class Datasheet:
     A class to create and store data insights from a given DataFrame.
 
     Parameters:
-    - data: pd.DataFrame or pl.DataFrame, the input data.
-    - analysis: None, placeholder for potential future analysis settings.
-    - layout: None, placeholder for future layout customization options.
-    
+        data: pd.DataFrame or pl.DataFrame, the input data.
+        analysis: None, placeholder for potential future analysis settings.
+        layout: None, placeholder for future layout customization options.
+
     Attributes:
-    - analysis: None, placeholder attribute for analysis settings.
-    - layout: None, placeholder attribute for layout customization options.
-    - data: pd.DataFrame or pl.DataFrame, the input DataFrame.
-    - data_statistics: Dict[str, Any], calculated statistics of the data.
-    - datasheet_info_cards: List[Dict[str, str]], information cards for the datasheet.
+        analysis: None, placeholder attribute for analysis settings.
+        layout: None, placeholder attribute for layout customization options.
+        data: pd.DataFrame or pl.DataFrame, the input DataFrame.
+        data_statistics: Dict[str, Any], calculated statistics of the data.
+        datasheet_info_cards: List[Dict[str, str]], information cards for the datasheet.
 
     Methods:
-    - _run_analyses(): Runs the analyses on the provided data and calculates statistical insights.
-    - create_datasheet(): Runs the analyses and creates a structured datasheet.
-    - store_datasheet(): Stores the created datasheet as an HTML file or PDF document.
+        _run_analyses(): Runs the analyses on the provided data and calculates statistical insights.
+        create_datasheet(): Runs the analyses and creates a structured datasheet.
+        store_datasheet(): Stores the created datasheet as an HTML file or PDF document.
     """
     def __init__(self, data: pd.DataFrame | pl.DataFrame, analysis: None, layout=None):
         self.analysis = analysis

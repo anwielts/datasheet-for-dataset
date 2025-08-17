@@ -25,9 +25,7 @@ def _check_for_required_sections(sections: list[Section], required_sections: lis
 
 
 class BaseLayout:
-    """Layout as describe in the paper "Datasheets for Datasets", https://arxiv.org/pdf/1803.09010
-    
-    Base layout class as described in the paper "Datasheets for Datasets", https://arxiv.org/pdf/1803.09010.
+    """Base layout class as described in the paper "Datasheets for Datasets", https://arxiv.org/pdf/1803.09010.
 
     This class is responsible for managing and validating the layout of a datasheet based on predefined sections.
 
@@ -39,6 +37,7 @@ class BaseLayout:
         __init__(self, sections: list[Section], required_sections: list[str] | None = None):
             Initializes the BaseLayout object with a list of sections and optional required sections.
     """
+    # Layout as describe in the paper "Datasheets for Datasets", https://arxiv.org/pdf/1803.09010
     def __init__(self,
                  sections: list[Section],
                  required_sections: list[str] | None = None):
