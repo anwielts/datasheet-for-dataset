@@ -7,6 +7,16 @@ class Section(BaseModel):
 
 
 def _check_for_required_sections(sections: list[Section], required_sections: list[str]):
+    """
+    Validates that each section in the provided list matches one of the required headings.
+
+    Args:
+        sections (list[Section]): A list of Section objects containing headings to validate.
+        required_sections (list[str]): A list of required headings for the basic datasheet layout.
+
+    Raises:
+        ValueError: If any section heading is not found in the required_sections list.
+    """
     for section in sections:
         if section.heading.lower() not in required_sections:
             required_heading_error = f'Provided section/heading {section.heading} which is not in the'
@@ -15,7 +25,20 @@ def _check_for_required_sections(sections: list[Section], required_sections: lis
 
 
 class BaseLayout:
-    """Layout as describe in the paper "Datasheets for Datasets", https://arxiv.org/pdf/1803.09010"""
+    """Layout as describe in the paper "Datasheets for Datasets", https://arxiv.org/pdf/1803.09010
+    
+    Base layout class as described in the paper "Datasheets for Datasets", https://arxiv.org/pdf/1803.09010.
+
+    This class is responsible for managing and validating the layout of a datasheet based on predefined sections.
+
+    Attributes:
+        sections (list[Section]): A list of Section objects representing different parts of the datasheet.
+        required_sections (list[str] | None): A list of section names that are considered mandatory. Defaults to common mandatory sections such as motivation, composition, collection process, processing steps, uses, distribution, and maintenance.
+
+    Methods:
+        __init__(self, sections: list[Section], required_sections: list[str] | None = None):
+            Initializes the BaseLayout object with a list of sections and optional required sections.
+    """
     def __init__(self,
                  sections: list[Section],
                  required_sections: list[str] | None = None):
