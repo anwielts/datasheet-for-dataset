@@ -1,14 +1,61 @@
 """Definitions of how the datasheet should look like"""
+from pydantic import BaseModel
+
+
+class Section(BaseModel):
+    heading: str
+
+
+def _check_for_required_sections(sections: list[Section], required_sections: list[str]):
+    """
+    Validates that each section in the provided list matches one of the required headings.
+
+    Args:
+        sections (list[Section]): A list of Section objects containing headings to validate.
+        required_sections (list[str]): A list of required headings for the basic datasheet layout.
+
+    Raises:
+        ValueError: If any section heading is not found in the required_sections list.
+    """
+    for section in sections:
+        if section.heading.lower() not in required_sections:
+            required_heading_error = f'Provided section/heading {section.heading} which is not in the'
+            f'required {required_sections} sections/headings for the basic datasheet for dataset layout.'
+            raise ValueError(required_heading_error)
 
 
 class BaseLayout:
-    def __init__(self):
-        pass
-        # Define base layout as defined in the paper
+    """Base layout class as described in the paper "Datasheets for Datasets", https://arxiv.org/pdf/1803.09010.
+
+    This class is responsible for managing and validating the layout of a datasheet based on predefined sections.
+
+    Attributes:
+        sections (list[Section]): A list of Section objects representing different parts of the datasheet.
+        required_sections (list[str] | None): A list of section names that are considered mandatory. Defaults to common mandatory sections such as motivation, composition, collection process, processing steps, uses, distribution, and maintenance.
+
+    Methods:
+        __init__(self, sections: list[Section], required_sections: list[str] | None = None):
+            Initializes the BaseLayout object with a list of sections and optional required sections.
+    """
+    # Layout as describe in the paper "Datasheets for Datasets", https://arxiv.org/pdf/1803.09010
+    def __init__(self,
+                 sections: list[Section],
+                 required_sections: list[str] | None = None):
+        self.sections = sections
+        required_sections = ['motivation',
+                             'composition',
+                             'collection_process',
+                             'processing_steps',
+                             'uses',
+                             'distribution',
+                             'maintenance']
+        self.required_sections = required_sections
+        _check_for_required_sections(self.sections, self.required_sections)
 
 
 class SafetyEU:
+    """Define the layout in such a way that is resembles the material
+    security datasheet for materials and chemicals needed in the EU
+    """
     def __init__(self):
-        """Define the layout in such a way that is resembles the material
-        security datasheet for materials and chemicals needed in the EU
-        """
+        pass
