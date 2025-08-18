@@ -1,6 +1,4 @@
 [![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![Unlicense License][license-shield]][license-url]
 [![Build and Publish](https://github.com/anwielts/datasheet-for-dataset/actions/workflows/build_and_publish.yml/badge.svg)](https://github.com/anwielts/datasheet-for-dataset/actions/workflows/build_and_publish.yml) [![Test and Lint](https://github.com/anwielts/datasheet-for-dataset/actions/workflows/test_and_lint.yml/badge.svg)](https://github.com/anwielts/datasheet-for-dataset/actions/workflows/test_and_lint.yml)
@@ -99,10 +97,6 @@ For questions, ideas, or issues, please open a GitHub issue; for sensitive secur
 
 [contributors-shield]: https://img.shields.io/github/contributors/anwielts/datasheet-for-dataset.svg?style=for-the-badge
 [contributors-url]: https://github.com/anwielts/datasheet-for-dataset/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/anwielts/datasheet-for-dataset.svg?style=for-the-badge
-[forks-url]: https://github.com/anwielts/datasheet-for-dataset/network/members
-[stars-shield]: https://img.shields.io/github/stars/anwielts/datasheet-for-dataset.svg?style=for-the-badge
-[stars-url]: https://github.com/anwielts/datasheet-for-dataset/stargazers
 [issues-shield]: https://img.shields.io/github/issues/anwielts/datasheet-for-dataset.svg?style=for-the-badge
 [issues-url]: https://github.com/anwielts/datasheet-for-dataset/issues
 [license-shield]: https://img.shields.io/github/license/anwielts/datasheet-for-dataset.svg?style=for-the-badge
