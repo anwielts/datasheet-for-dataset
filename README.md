@@ -66,6 +66,32 @@ sheet.create_datasheet()
 sheet.store_datasheet()
 ```
 
+## Development
+After setting up the project for development (see Installation), you can use the following commands:
+
+### Running Tests
+```bash
+# Run tests using hatch
+hatch run test
+```
+
+### Code Quality with Ruff
+```bash
+# Check for linting issues
+ruff check .
+
+# Auto-fix linting issues where possible
+ruff check . --fix
+
+# Format code (optional)
+ruff format .
+```
+
+## Links
+- Homepage: https://github.com/anwielts/datasheet-for-dataset
+- Issue tracker: https://github.com/anwielts/datasheet-for-dataset/issues
+- Documentation: https://github.com/anwielts/datasheet-for-dataset/wiki
+
 ## Contributing
 Contributions are welcome! To contribute:
 1. Fork the repository and create a new branch from main.
