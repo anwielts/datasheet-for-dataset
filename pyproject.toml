@@ -40,6 +40,9 @@ test = "pytest"
 dependencies = ["pytest"]
 
 
+[project.scripts]
+dfd = "dfd.cli:main"
+
 [project.urls]
 Homepage = "https://github.com/anwielts/datasheet-for-dataset"
 Repository = "https://github.com/anwielts/datasheet-for-dataset"
