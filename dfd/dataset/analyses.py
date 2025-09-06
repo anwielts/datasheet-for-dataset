@@ -1,23 +1,76 @@
 """Analyses to run depending on the type of data domain"""
 from abc import ABC, abstractmethod
+from typing import Optional
 
 import pandas as pd
 import polars as pl
 from pydantic import BaseModel
 
 
+TabularDataType = pd.DataFrame | pl.DataFrame
+
+
 class TabularStatistics(BaseModel):
     column_name: str
-    count: float = None
-    highest_quantile: float | None = None # 75% percentile
-    middle_quantile: float | None = None # 50% percentile
-    lowest_quantile: float | None = None # 25% percentile
-    max_val: float | None = None
-    min_val: float | None = None
-    mean_val: float | None = None
-    std_val: float | None = None
-
-TabularDataType = pd.DataFrame | pl.DataFrame
+    count: Optional[float] = None
+    highest_quantile: Optional[float] = None  # 75% percentile
+    middle_quantile: Optional[float] = None   # 50% percentile
+    lowest_quantile: Optional[float] = None   # 25% percentile
+    max_val: Optional[float] = None
+    min_val: Optional[float] = None
+    mean_val: Optional[float] = None
+    std_val: Optional[float] = None
+    
+    @property
+    def markdown(self) -> str:
+        """Convert this TabularStatistics instance to markdown format.
+        
+        Returns:
+            str: Markdown representation of the statistics for this column.
+        """
+        lines = []
+        lines.append(f"**Column: {self.column_name}**")
+        lines.append(f"- Count: {self.count}")
+        
+        if self.mean_val is not None:
+            lines.append(f"- Mean: {self.mean_val:.4f}")
+        if self.std_val is not None:
+            lines.append(f"- Standard Deviation: {self.std_val:.4f}")
+        if self.min_val is not None:
+            lines.append(f"- Min: {self.min_val}")
+        if self.max_val is not None:
+            lines.append(f"- Max: {self.max_val}")
+        if self.lowest_quantile is not None:
+            lines.append(f"- 25th Percentile: {self.lowest_quantile}")
+        if self.middle_quantile is not None:
+            lines.append(f"- Median: {self.middle_quantile}")
+        if self.highest_quantile is not None:
+            lines.append(f"- 75th Percentile: {self.highest_quantile}")
+        
+        return "\n".join(lines)
+    
+    @staticmethod
+    def format_tabular_statistics_to_markdown(statistics: list["TabularStatistics"]) -> str:
+        """Format a list of TabularStatistics to markdown format.
+        
+        Args:
+            statistics: List of TabularStatistics to format.
+            
+        Returns:
+            str: Markdown representation of all statistics with section header.
+        """
+        if not statistics:
+            return ""
+        
+        lines = []
+        lines.append("#### Statistical Analysis")
+        lines.append("")
+        
+        for stat in statistics:
+            lines.append(stat.markdown)
+            lines.append("")
+        
+        return "\n".join(lines)
 
 
 class BaseAnalyses:
