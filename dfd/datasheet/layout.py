@@ -8,20 +8,24 @@ class Section(BaseModel):
 
 def _check_for_required_sections(sections: list[Section], required_sections: list[str]):
     """
-    Validates that each section in the provided list matches one of the required headings.
+    Validates that all required sections are present in the provided sections list.
 
     Args:
         sections (list[Section]): A list of Section objects containing headings to validate.
         required_sections (list[str]): A list of required headings for the basic datasheet layout.
 
     Raises:
-        ValueError: If any section heading is not found in the required_sections list.
+        ValueError: If any required section is missing from the sections list.
     """
-    for section in sections:
-        if section.heading.lower() not in required_sections:
-            required_heading_error = f'Provided section/heading {section.heading} which is not in the'
-            f'required {required_sections} sections/headings for the basic datasheet for dataset layout.'
-            raise ValueError(required_heading_error)
+    section_headings = [section.heading.lower() for section in sections]
+    missing_sections = [req for req in required_sections if req.lower() not in section_headings]
+    
+    if missing_sections:
+        required_heading_error = (
+            f'Missing required sections: {missing_sections}. '
+            f'Required sections are: {required_sections}'
+        )
+        raise ValueError(required_heading_error)
 
 
 class BaseLayout:
@@ -42,13 +46,14 @@ class BaseLayout:
                  sections: list[Section],
                  required_sections: list[str] | None = None):
         self.sections = sections
-        required_sections = ['motivation',
-                             'composition',
-                             'collection_process',
-                             'processing_steps',
-                             'uses',
-                             'distribution',
-                             'maintenance']
+        if required_sections is None:
+            required_sections = ['motivation',
+                                  'composition',
+                                  'collection_process',
+                                  'preprocessing',
+                                  'uses',
+                                  'distribution',
+                                  'maintenance']
         self.required_sections = required_sections
         _check_for_required_sections(self.sections, self.required_sections)
 
