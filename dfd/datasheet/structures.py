@@ -109,26 +109,8 @@ class DatasheetInformationCard(BaseModel):
         
         # Add automated results
         if self.result_data:
-            lines.append("#### Statistical Analysis")
-            lines.append("")
-            for stat in self.result_data:
-                lines.append(f"**Column: {stat.column_name}**")
-                lines.append(f"- Count: {stat.count}")
-                if stat.mean_val is not None:
-                    lines.append(f"- Mean: {stat.mean_val:.4f}")
-                if stat.std_val is not None:
-                    lines.append(f"- Standard Deviation: {stat.std_val:.4f}")
-                if stat.min_val is not None:
-                    lines.append(f"- Min: {stat.min_val}")
-                if stat.max_val is not None:
-                    lines.append(f"- Max: {stat.max_val}")
-                if stat.lowest_quantile is not None:
-                    lines.append(f"- 25th Percentile: {stat.lowest_quantile}")
-                if stat.middle_quantile is not None:
-                    lines.append(f"- Median: {stat.middle_quantile}")
-                if stat.highest_quantile is not None:
-                    lines.append(f"- 75th Percentile: {stat.highest_quantile}")
-                lines.append("")
+            formatted_stats = TabularStatistics.format_tabular_statistics_to_markdown(self.result_data)
+            lines.append(formatted_stats)
         
         return "\n".join(lines)
     
