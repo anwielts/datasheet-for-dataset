@@ -1,7 +1,5 @@
 # Maintenance
 
-*These questions are intended to encourage dataset creators to plan for dataset maintenance and communicate this plan with dataset consumers.*
-
 ## Who will be supporting/hosting/maintaining the dataset?
 
 [Please provide your answer here]

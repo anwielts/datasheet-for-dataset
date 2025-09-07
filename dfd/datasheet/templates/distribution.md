@@ -1,7 +1,5 @@
 # Distribution
 
-*Dataset creators should read through these questions prior to distribution.*
-
 ## Will the dataset be distributed to third parties outside of the entity on behalf of which the dataset was created?
 
 **If so, please provide a description.**

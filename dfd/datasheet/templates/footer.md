@@ -1,7 +1,5 @@
 ## Automated Analysis Results
 
-*This section will be automatically populated when you run the datasheet generation tool with your dataset.*
-
 ### Dataset Statistics
 
 [Automated statistical analysis will appear here]

@@ -1,7 +1,5 @@
 # Motivation
 
-*The questions in this section are primarily intended to encourage dataset creators to clearly articulate their reasons for creating the dataset and to promote transparency about funding interests.*
-
 ## For what purpose was the dataset created?
 
 **Was there a specific task in mind?**

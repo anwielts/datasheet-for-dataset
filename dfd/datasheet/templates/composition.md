@@ -1,7 +1,5 @@
 # Composition
 
-*Dataset creators should read through the questions in this section prior to any data collection and then provide answers once collection is complete.*
-
 ## What do the instances that comprise the dataset represent?
 
 **Are they documents, photos, people, countries?**

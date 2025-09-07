@@ -1,7 +1,5 @@
 # Collection Process
 
-*As with the previous section, dataset creators should read through these questions prior to any data collection to flag potential issues and then provide answers once collection is complete.*
-
 ## How was the data associated with each instance acquired?
 
 **Was the data directly observable (e.g., raw text, movie ratings)?**

@@ -1,7 +1,5 @@
 # Uses
 
-*These questions are intended to encourage dataset creators to reflect on the tasks for which the dataset should and should not be used.*
-
 ## Has the dataset been used for any tasks already?
 
 **If so, please provide a description.**
