@@ -43,7 +43,7 @@ packages = ["dfd"]
 module-name = "dfd"
 module-root = ""
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
     "ruff>=0.12.8",
     "pytest>=8.3",

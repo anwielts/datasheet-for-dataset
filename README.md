@@ -29,7 +29,7 @@ git clone https://github.com/anwielts/datasheet-for-dataset.git
 cd datasheet-for-dataset
 
 # install the package (and dev extras: pytest, ruff)
-pip install -e ".[dev]"
+uv pip install -e ".[dev]"
 ```
 
 ## Quickstart
