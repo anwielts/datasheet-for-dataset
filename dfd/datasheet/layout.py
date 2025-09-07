@@ -1,10 +1,9 @@
 """Definitions of how the datasheet should look like"""
-from typing import List, Optional
 
 from dfd.datasheet.structures import DatasheetSection
 
 
-def _check_for_required_sections(sections: List[DatasheetSection], required_sections: List[DatasheetSection]):
+def _check_for_required_sections(sections: list[DatasheetSection], required_sections: list[DatasheetSection]):
     """
     Validates that all required sections are present in the provided sections list.
 
@@ -16,7 +15,7 @@ def _check_for_required_sections(sections: List[DatasheetSection], required_sect
         ValueError: If any required section is missing from the sections list.
     """
     missing_sections = [req for req in required_sections if req not in sections]
-    
+
     if missing_sections:
         missing_names = [section.value for section in missing_sections]
         required_names = [section.value for section in required_sections]
@@ -53,12 +52,12 @@ class BaseLayout:
         DatasheetSection.MAINTENANCE,
         DatasheetSection.AUTOMATED_ANALYSIS
     ]
-    
+
     def __init__(self,
-                 sections: Optional[List[DatasheetSection]] = None,
-                 required_sections: Optional[List[DatasheetSection]] = None,
-                 section_order: Optional[List[DatasheetSection]] = None):
-        
+                 sections: list[DatasheetSection] | None = None,
+                 required_sections: list[DatasheetSection] | None = None,
+                 section_order: list[DatasheetSection] | None = None):
+
         if required_sections is None:
             required_sections = [
                 DatasheetSection.MOTIVATION,
@@ -75,16 +74,16 @@ class BaseLayout:
         self.required_sections = required_sections
         self.section_order = section_order or self.DEFAULT_SECTION_ORDER
         _check_for_required_sections(self.sections, self.required_sections)
-    
-    def get_ordered_sections(self) -> List[DatasheetSection]:
+
+    def get_ordered_sections(self) -> list[DatasheetSection]:
         """Get sections in the defined order.
         
         Returns:
             List[DatasheetSection]: Sections in the correct order.
         """
         return self.section_order
-    
-    def get_section_by_type(self, section_type: DatasheetSection) -> Optional[DatasheetSection]:
+
+    def get_section_by_type(self, section_type: DatasheetSection) -> DatasheetSection | None:
         """Get a section by its type.
         
         Args:

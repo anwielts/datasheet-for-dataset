@@ -142,7 +142,7 @@ class TemplateManager:
         try:
             return DatasheetSection(section_name)
         except ValueError:
-            msg = f"Unknown section name: {section_name}"
+            msg = f'Unknown section name: {section_name}'
             raise ValueError(msg)
 
     def _parse_filled_template(self, content: str) -> dict[str, str]:
