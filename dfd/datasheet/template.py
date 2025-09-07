@@ -27,7 +27,7 @@ class DatasheetTemplate:
             self.layout = layout
 
         # Extract section order from layout
-        self.section_order = [section.value for section in self.layout.sections]
+        self.section_order = [section.value for section in self.layout.section_order]
 
     def _load_template(self, template_name: str) -> str:
         """Load a template file from the templates directory.
@@ -80,7 +80,7 @@ class DatasheetTemplate:
         Returns:
             List[str]: Names of all required sections.
         """
-        return [section.value for section in self.layout.required_sections]
+        return [str(section.value) for section in self.layout.required_sections]
 
     def get_subsection_names(self, section: str) -> list[str]:
         """Get list of subsection names for a given section.

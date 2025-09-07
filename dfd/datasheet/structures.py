@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 from dfd.dataset.analyses import TabularStatistics
 
-if TYPE_CHECKING:
+if TYPE_CHECKING: # circular import otherwise
     from dfd.datasheet.layout import BaseLayout
 
 
@@ -46,6 +46,7 @@ class DatasheetInformationCard(BaseModel):
     card_type: CardType = Field(CardType.MANUAL, description='Type of card content')
 
     # Automated analysis results
+    # TODO: Extend to other data types beyond tabular
     result_data: list[TabularStatistics] | None = Field(
         None,
         description='Automated statistical analysis results'
@@ -301,20 +302,7 @@ class DatasheetStructure(BaseModel):
         ])
 
         # Get section order from layout or use default
-        if layout:
-            sections_order = layout.get_ordered_sections()
-        else:
-            # Fallback to default ordering if no layout provided
-            sections_order = [
-                DatasheetSection.MOTIVATION,
-                DatasheetSection.COMPOSITION,
-                DatasheetSection.COLLECTION_PROCESS,
-                DatasheetSection.PREPROCESSING,
-                DatasheetSection.USES,
-                DatasheetSection.DISTRIBUTION,
-                DatasheetSection.MAINTENANCE,
-                DatasheetSection.AUTOMATED_ANALYSIS
-            ]
+        sections_order = layout.get_ordered_sections()
 
         for section in sections_order:
             section_cards = self.get_cards_by_section(section)
