@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "datasheet-for-dataset"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
     "pandas",
     "numpy",
@@ -33,6 +33,11 @@ dev = [
     "ruff",
 ]
 
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+]
+
 [tool.hatch.envs.default.scripts]
 test = "pytest"
 
@@ -46,8 +51,3 @@ Repository = "https://github.com/anwielts/datasheet-for-dataset"
 
 [tool.hatch.build.targets.wheel]
 packages = ["dfd"]
-
-[dependency-groups]
-dev = [
-    "ruff>=0.12.8",
-]
