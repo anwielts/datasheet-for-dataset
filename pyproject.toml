@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.8.15,<0.9.0"]
+build-backend = "uv_build"
 
 [project]
 name = "datasheet-for-dataset"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
     "pandas",
     "numpy",
@@ -27,18 +27,9 @@ classifiers = [
   "Programming Language :: Python :: 3",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pytest",
-    "ruff",
-]
-
-[tool.hatch.envs.default.scripts]
-test = "pytest"
-
-[tool.hatch.envs.default]
-dependencies = ["pytest"]
-
+[tool.pytest.ini_options]
+addopts = "-q --maxfail=1 --cov=dfd"
+testpaths = ["tests"]
 
 [project.scripts]
 dfd = "dfd.cli:main"
@@ -47,10 +38,15 @@ dfd = "dfd.cli:main"
 Homepage = "https://github.com/anwielts/datasheet-for-dataset"
 Repository = "https://github.com/anwielts/datasheet-for-dataset"
 
-[tool.hatch.build.targets.wheel]
+[tool.uv.build-backend]
 packages = ["dfd"]
+module-name = "dfd"
+module-root = ""
 
 [dependency-groups]
 dev = [
     "ruff>=0.12.8",
+    "pytest>=8.3",
+    "pytest-cov",
+    "pytest-xdist",
 ]
