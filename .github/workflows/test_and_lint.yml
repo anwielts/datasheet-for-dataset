@@ -29,7 +29,7 @@ jobs:
 
       - name: Lint with ruff
         run: |
-          ruff check .
+          uv run ruff check
 
       - name: Run tests with uv
         run: |
@@ -53,7 +53,7 @@ jobs:
 
       - name: Lint with ruff
         run: |
-          ruff check .
+          uv run ruff check
 
       - name: Run tests with Hatch
         run: |
