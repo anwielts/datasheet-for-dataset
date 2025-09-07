@@ -1,4 +1,5 @@
 """Definitions of how the datasheet should look like"""
+from typing import ClassVar
 
 from dfd.datasheet.structures import DatasheetSection
 
@@ -42,7 +43,7 @@ class BaseLayout:
     """
     # Layout as describe in the paper "Datasheets for Datasets", https://arxiv.org/pdf/1803.09010
     # Default section order based on the paper
-    DEFAULT_SECTION_ORDER = [
+    DEFAULT_SECTION_ORDER: ClassVar[list[DatasheetSection]] = [
         DatasheetSection.MOTIVATION,
         DatasheetSection.COMPOSITION,
         DatasheetSection.COLLECTION_PROCESS,
@@ -77,7 +78,7 @@ class BaseLayout:
 
     def get_ordered_sections(self) -> list[DatasheetSection]:
         """Get sections in the defined order.
-        
+
         Returns:
             List[DatasheetSection]: Sections in the correct order.
         """
@@ -85,10 +86,10 @@ class BaseLayout:
 
     def get_section_by_type(self, section_type: DatasheetSection) -> DatasheetSection | None:
         """Get a section by its type.
-        
+
         Args:
             section_type: The section type to find.
-            
+
         Returns:
             Optional[DatasheetSection]: The section if found, None otherwise.
         """

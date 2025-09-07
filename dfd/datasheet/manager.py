@@ -15,10 +15,10 @@ class TemplateManager:
 
     def generate_empty_template(self, output_path: str | None = None) -> str:
         """Generate an empty markdown template.
-        
+
         Args:
             output_path: Optional path to save the template file
-            
+
         Returns:
             The markdown template content
         """
@@ -31,7 +31,7 @@ class TemplateManager:
 
     def create_datasheet_structure(self) -> DatasheetStructure:
         """Create a DatasheetStructure with empty cards for all template sections.
-        
+
         Returns:
             A DatasheetStructure containing cards for all template sections
         """
@@ -79,10 +79,10 @@ class TemplateManager:
 
     def load_filled_template(self, template_path: str) -> DatasheetStructure:
         """Load a filled template from a markdown file.
-        
+
         Args:
             template_path: Path to the filled markdown template
-            
+
         Returns:
             A DatasheetStructure with populated content
         """
@@ -103,7 +103,7 @@ class TemplateManager:
 
     def save_structure_as_template(self, structure: DatasheetStructure, output_path: str) -> None:
         """Save a DatasheetStructure as a markdown template.
-        
+
         Args:
             structure: The datasheet structure to save
             output_path: Path where to save the template
@@ -113,7 +113,7 @@ class TemplateManager:
 
     def get_section_names(self) -> list[str]:
         """Get all available section names.
-        
+
         Returns:
             List of section names
         """
@@ -121,10 +121,10 @@ class TemplateManager:
 
     def get_subsection_names(self, section: str) -> list[str]:
         """Get subsection names for a given section.
-        
+
         Args:
             section: The section name
-            
+
         Returns:
             List of subsection names
         """
@@ -132,25 +132,25 @@ class TemplateManager:
 
     def _map_section_name(self, section_name: str) -> DatasheetSection:
         """Map section name to DatasheetSection enum.
-        
+
         Args:
             section_name: The section name from template
-            
+
         Returns:
             Corresponding DatasheetSection enum value
         """
         try:
             return DatasheetSection(section_name)
-        except ValueError:
+        except ValueError as exc:
             msg = f'Unknown section name: {section_name}'
-            raise ValueError(msg)
+            raise ValueError(msg) from exc
 
     def _parse_filled_template(self, content: str) -> dict[str, str]:
         """Parse a filled markdown template to extract answers.
-        
+
         Args:
             content: The markdown content
-            
+
         Returns:
             Dictionary mapping card keys to their filled content
         """
@@ -161,32 +161,32 @@ class TemplateManager:
         current_content = []
 
         for line in lines:
-            line = line.strip()
+            line_stripped = line.strip()
 
-            if line.startswith('## '):
+            if line_stripped.startswith('## '):
                 # Save previous content
                 if current_section:
                     key = self._generate_key(current_section, current_subsection)
                     filled_data[key] = '\n'.join(current_content).strip()
 
                 # Start new section
-                current_section = line[3:].strip()
+                current_section = line_stripped[3:].strip()
                 current_subsection = None
                 current_content = []
 
-            elif line.startswith('### '):
+            elif line_stripped.startswith('### '):
                 # Save previous subsection content
                 if current_section and current_subsection:
                     key = self._generate_key(current_section, current_subsection)
                     filled_data[key] = '\n'.join(current_content).strip()
 
                 # Start new subsection
-                current_subsection = line[4:].strip()
+                current_subsection = line_stripped[4:].strip()
                 current_content = []
 
-            elif line and not line.startswith('#'):
+            elif line_stripped and not line_stripped.startswith('#'):
                 # Add content line
-                current_content.append(line)
+                current_content.append(line_stripped)
 
         # Save final content
         if current_section:
@@ -197,10 +197,10 @@ class TemplateManager:
 
     def _generate_card_key(self, card: DatasheetInformationCard) -> str:
         """Generate a key for a card based on its section and subsection.
-        
+
         Args:
             card: The datasheet information card
-            
+
         Returns:
             A unique key for the card
         """
@@ -208,11 +208,11 @@ class TemplateManager:
 
     def _generate_key(self, section: str, subsection: str | None) -> str:
         """Generate a key from section and subsection names.
-        
+
         Args:
             section: The section name
             subsection: The subsection name (optional)
-            
+
         Returns:
             A unique key
         """

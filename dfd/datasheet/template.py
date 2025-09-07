@@ -7,14 +7,14 @@ from .layout import BaseLayout
 
 class DatasheetTemplate:
     """Generates empty datasheet questionnaire templates based on the 'Datasheets for Datasets' paper.
-    
+
     This class creates structured markdown templates that serve as blueprints for
     dataset documentation following the standardized datasheet format.
     """
 
     def __init__(self, layout: BaseLayout | None = None):
         """Initialize the template generator with template directory path and optional layout.
-        
+
         Args:
             layout: Optional BaseLayout instance to define section order and validation.
                    If not provided, uses default layout.
@@ -31,21 +31,22 @@ class DatasheetTemplate:
 
     def _load_template(self, template_name: str) -> str:
         """Load a template file from the templates directory.
-        
+
         Args:
             template_name: Name of the template file (without .md extension).
-            
+
         Returns:
             str: Content of the template file.
         """
         template_path = self.template_dir / f'{template_name}.md'
         if not template_path.exists():
-            raise FileNotFoundError(f'Template file not found: {template_path}')
+            msg = f'Template file not found: {template_path}'
+            raise FileNotFoundError(msg)
         return template_path.read_text(encoding='utf-8')
 
     def generate_empty_template(self) -> str:
         """Generate an empty markdown template for datasheet questionnaire.
-        
+
         Returns:
             str: Complete markdown template with all sections and questions.
         """
@@ -67,7 +68,7 @@ class DatasheetTemplate:
 
     def get_section_names(self) -> list[str]:
         """Get list of all section names.
-        
+
         Returns:
             List[str]: Names of all sections in the template.
         """
@@ -75,7 +76,7 @@ class DatasheetTemplate:
 
     def get_required_sections(self) -> list[str]:
         """Get list of required section names from the layout.
-        
+
         Returns:
             List[str]: Names of all required sections.
         """
@@ -83,10 +84,10 @@ class DatasheetTemplate:
 
     def get_subsection_names(self, section: str) -> list[str]:
         """Get list of subsection names for a given section.
-        
+
         Args:
             section: Name of the section.
-            
+
         Returns:
             List[str]: Names of all subsections in the given section.
         """
@@ -94,8 +95,7 @@ class DatasheetTemplate:
             template_content = self._load_template(section)
             # Extract subsection headings (## headings) from the markdown content
             subsection_pattern = r'^## (.+)$'
-            matches = re.findall(subsection_pattern, template_content, re.MULTILINE)
-            return matches
+            return re.findall(subsection_pattern, template_content, re.MULTILINE)
         except FileNotFoundError:
             # Return empty list if template file doesn't exist
             return []

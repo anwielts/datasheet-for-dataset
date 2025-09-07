@@ -1,6 +1,9 @@
 """Command-line interface for datasheet generation tool."""
 import argparse
+import sys
 from pathlib import Path
+
+import pandas as pd
 
 from dfd.datasheet.compiler import DatasheetCompiler
 from dfd.datasheet.manager import TemplateManager
@@ -8,10 +11,10 @@ from dfd.datasheet.manager import TemplateManager
 
 def generate_template(output_path: str | None = None) -> str:
     """Generate an empty datasheet questionnaire template.
-    
+
     Args:
         output_path: Optional path where to save the template. If None, saves to current directory.
-        
+
     Returns:
         str: Path to the generated template file.
     """
@@ -32,30 +35,29 @@ def generate_template(output_path: str | None = None) -> str:
 
 def create_datasheet_from_template(template_path: str, data_path: str, output_path: str | None = None) -> str:
     """Create a complete datasheet from a filled template and dataset.
-    
+
     Args:
         template_path: Path to the filled template file.
         data_path: Path to the dataset file (CSV, JSON, etc.).
         output_path: Optional path where to save the complete datasheet.
-        
+
     Returns:
         str: Path to the generated datasheet file.
     """
-    import pandas as pd
-
+    # Load dataset
     try:
-        # Load dataset
         if data_path.endswith('.csv'):
             dataset = pd.read_csv(data_path)
         elif data_path.endswith('.parquet'):
             dataset = pd.read_parquet(data_path)
-        else:
-            raise ValueError(f'Unsupported file format: {data_path}')
+    except FileNotFoundError as e:
+        msg = f'Error loading dataset: {e}'
+        raise ValueError(msg) from e
 
-        # Set default output path if not provided
-        if output_path is None:
-            output_path = 'complete_datasheet.md'
-
+    # Set default output path if not provided
+    if output_path is None:
+        output_path = 'complete_datasheet.md'
+    try:
         # Create compiler and compile datasheet
         compiler = DatasheetCompiler()
         result_path = compiler.compile_from_template(
@@ -67,7 +69,8 @@ def create_datasheet_from_template(template_path: str, data_path: str, output_pa
         return str(Path(result_path).absolute())
 
     except Exception as e:
-        raise RuntimeError(f'Error creating datasheet: {e}')
+        msg = f'Error creating datasheet: {e}'
+        raise RuntimeError(msg) from e
 
 
 def main():
@@ -76,16 +79,16 @@ def main():
         description='Datasheet for Dataset - Semi-automatic datasheet generation tool',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
-Examples:
-  # Generate an empty template
-  dfd generate-template
-  
-  # Generate template to specific location
-  dfd generate-template --output /path/to/my_template.md
-  
-  # Create datasheet from filled template and dataset (coming soon)
-  dfd create-datasheet --template filled_template.md --data dataset.csv
-'''
+        Examples:
+        # Generate an empty template
+        dfd generate-template
+
+        # Generate template to specific location
+        dfd generate-template --output /path/to/my_template.md
+
+        # Create datasheet from filled template and dataset (coming soon)
+        dfd create-datasheet --template filled_template.md --data dataset.csv
+        '''
     )
 
     subparsers = parser.add_subparsers(dest='command', help='Available commands')
@@ -134,7 +137,7 @@ Examples:
             print('\n📝 Next steps:')
             print('   1. Open the template file and fill in the documentation sections')
             print("   2. Use 'dfd create-datasheet' to combine with your dataset (coming soon)")
-        except Exception as e:
+        except (OSError, ValueError) as e:
             print(f'❌ Error generating template: {e}')
             return 1
 
@@ -150,7 +153,7 @@ Examples:
         except NotImplementedError as e:
             print(f'🚧 {e}')
             return 1
-        except Exception as e:
+        except (FileNotFoundError, ValueError) as e:
             print(f'❌ Error creating datasheet: {e}')
             return 1
 
@@ -162,4 +165,4 @@ Examples:
 
 
 if __name__ == '__main__':
-    exit(main())
+    sys.exit(main())

@@ -23,7 +23,7 @@ class TabularStatistics(BaseModel):
     @property
     def markdown(self) -> str:
         """Convert this TabularStatistics instance to markdown format.
-        
+
         Returns:
             str: Markdown representation of the statistics for this column.
         """
@@ -51,10 +51,10 @@ class TabularStatistics(BaseModel):
     @staticmethod
     def format_tabular_statistics_to_markdown(statistics: list['TabularStatistics']) -> str:
         """Format a list of TabularStatistics to markdown format.
-        
+
         Args:
             statistics: List of TabularStatistics to format.
-            
+
         Returns:
             str: Markdown representation of all statistics with section header.
         """

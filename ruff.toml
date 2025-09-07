@@ -69,6 +69,8 @@ lint.ignore = [
     "TD003",
     "FIX002", # too verbose descriptions of todos
     "S101", # Use of `assert` statements
+    "T201", # Print statements forbidden
+    "INP001", # Examples do not count as package
 ]
 # Allow fix for all enabled rules (when `--fix`) is provided.
 lint.fixable = ["ALL"]

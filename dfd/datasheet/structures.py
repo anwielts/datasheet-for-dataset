@@ -31,7 +31,7 @@ class DatasheetSection(str, Enum):
 
 class DatasheetInformationCard(BaseModel):
     """Enhanced datasheet information card supporting blueprint sections and automation.
-    
+
     This class represents a single section or subsection of a datasheet,
     containing both user-provided content and automated analysis results.
     """
@@ -58,8 +58,8 @@ class DatasheetInformationCard(BaseModel):
     )
 
     # Metadata
-    is_required: bool = Field(True, description='Whether this card is required for completeness')
-    auto_populated: bool = Field(False, description='Whether content was automatically generated')
+    is_required: bool = Field(default=True, description='Whether this card is required for completeness')
+    auto_populated: bool = Field(default=False, description='Whether content was automatically generated')
 
     # Additional structured data
     metadata: dict[str, Any] = Field(
@@ -69,7 +69,7 @@ class DatasheetInformationCard(BaseModel):
 
     def is_complete(self) -> bool:
         """Check if this card has sufficient content.
-        
+
         Returns:
             bool: True if the card has meaningful content.
         """
@@ -84,7 +84,7 @@ class DatasheetInformationCard(BaseModel):
 
     def to_markdown(self) -> str:
         """Convert this card to markdown format.
-        
+
         Returns:
             str: Markdown representation of this card.
         """
@@ -122,13 +122,13 @@ class DatasheetInformationCard(BaseModel):
                            sub_heading: str | None = None,
                            questions: list[str] | None = None) -> 'DatasheetInformationCard':
         """Create a card from template information.
-        
+
         Args:
             section: The datasheet section this card belongs to.
             heading: Main heading for the card.
             sub_heading: Optional sub-heading.
             questions: List of questions from the template.
-            
+
         Returns:
             DatasheetInformationCard: New card instance.
         """
@@ -151,13 +151,13 @@ class DatasheetInformationCard(BaseModel):
                         result_data: list[TabularStatistics],
                         description: str = '') -> 'DatasheetInformationCard':
         """Create an automated analysis card.
-        
+
         Args:
             section: The datasheet section this card belongs to.
             heading: Main heading for the card.
             result_data: Statistical analysis results.
             description: Optional description of the analysis.
-            
+
         Returns:
             DatasheetInformationCard: New automated card instance.
         """
@@ -176,7 +176,7 @@ class DatasheetInformationCard(BaseModel):
 
 class DatasheetStructure(BaseModel):
     """Complete datasheet structure containing multiple information cards.
-    
+
     This class manages the overall organization and compilation of
     datasheet information cards into a complete document.
     """
@@ -200,7 +200,7 @@ class DatasheetStructure(BaseModel):
 
     def add_card(self, card: DatasheetInformationCard) -> None:
         """Add an information card to the datasheet.
-        
+
         Args:
             card: The information card to add.
         """
@@ -208,10 +208,10 @@ class DatasheetStructure(BaseModel):
 
     def get_cards_by_section(self, section: DatasheetSection) -> list[DatasheetInformationCard]:
         """Get all cards belonging to a specific section.
-        
+
         Args:
             section: The section to filter by.
-            
+
         Returns:
             List[DatasheetInformationCard]: Cards in the specified section.
         """
@@ -219,7 +219,7 @@ class DatasheetStructure(BaseModel):
 
     def is_complete(self) -> bool:
         """Check if the datasheet is complete.
-        
+
         Returns:
             bool: True if all required cards are complete.
         """
@@ -228,7 +228,7 @@ class DatasheetStructure(BaseModel):
 
     def get_completion_status(self) -> dict[str, Any]:
         """Get detailed completion status.
-        
+
         Returns:
             Dict containing completion statistics.
         """
@@ -250,10 +250,10 @@ class DatasheetStructure(BaseModel):
 
     def validate_against_layout(self, layout: 'BaseLayout') -> dict[str, Any]:
         """Validate this datasheet structure against a layout.
-        
+
         Args:
             layout: The layout to validate against.
-            
+
         Returns:
             Dict containing validation results.
         """
@@ -280,10 +280,10 @@ class DatasheetStructure(BaseModel):
 
     def to_markdown(self, layout: Optional['BaseLayout'] = None) -> str:
         """Convert the entire datasheet to markdown format.
-        
+
         Args:
             layout: Optional layout to define section ordering. If None, uses default ordering.
-        
+
         Returns:
             str: Complete markdown representation of the datasheet.
         """
