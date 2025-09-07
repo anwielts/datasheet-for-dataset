@@ -1,14 +1,17 @@
 """Analyses to run depending on the type of data domain"""
+
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import (
+    Generic,
+    Optional,
+    TypeVar
+)
 
 import pandas as pd
 import polars as pl
 from pydantic import BaseModel
 
-
-TabularDataType = pd.DataFrame | pl.DataFrame
-
+TabularDataType = TypeVar("TabularDataType")
 
 class TabularStatistics(BaseModel):
     column_name: str
@@ -91,17 +94,17 @@ class SoundAnalyses:
         pass
 
 
-class TabularAnalysesStrategy(ABC):
+class TabularAnalysesStrategy(ABC, Generic[TabularDataType]):
     """Tabular analyses strategy interface defining common methods for all tabular analyses."""
     @abstractmethod
-    def describe(self, data: TabularDataType) -> None:
+    def describe(self, data: TabularDataType) -> list[TabularStatistics]:
         """Describes the tabular data.
 
         Args:
             data (TabularDataType): The input tabular data to be analyzed.
 
         Returns:
-            None
+            list[TabularStatistics]: A list of TabularStatistics objects.
         """
 
 
@@ -139,7 +142,7 @@ class TabularDataContext:
         self._strategy = strategy
 
 
-    def calculate_tabular_statistics(self, data: TabularDataType) -> None:
+    def calculate_tabular_statistics(self, data: TabularDataType) -> list[TabularStatistics]:
         """Calculate and return the statistical information of the given tabular data.
 
         Args:
@@ -151,7 +154,7 @@ class TabularDataContext:
         return self._strategy.describe(data)
 
 
-class PolarsTabularAnalyses(TabularAnalysesStrategy):
+class PolarsTabularAnalyses(TabularAnalysesStrategy[pl.DataFrame]):
     """Polars-based implementation of Tabular Analyses Strategy.
 
     This class extends the `TabularAnalysesStrategy` to analyze tabular data using polars.
@@ -218,7 +221,7 @@ class PolarsTabularAnalyses(TabularAnalysesStrategy):
         return tabular_statistics
 
 
-class PandasTabularAnalyses(TabularAnalysesStrategy):
+class PandasTabularAnalyses(TabularAnalysesStrategy[pd.DataFrame]):
     """Pandas-based implementation of Tabular Analyses Strategy.
 
     This class extends the `TabularAnalysesStrategy` to analyze tabular data using pandas.
