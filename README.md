@@ -29,7 +29,7 @@ git clone https://github.com/anwielts/datasheet-for-dataset.git
 cd datasheet-for-dataset
 
 # install the package (and dev extras: pytest, ruff)
-pip install -e ".[dev]"
+uv pip install -e ".[dev]"
 ```
 
 ## Quickstart
@@ -69,22 +69,38 @@ sheet.store_datasheet()
 ## Development
 After setting up the project for development (see Installation), you can use the following commands:
 
+### Install uv with:
+```bash
+pip install uv
+```
+### Lock dependencies / sync project
+```bash
+uv lock
+uv sync
+uv sync --dev
+```
+
+### Building the package
+```bash
+uv build
+```
+
 ### Running Tests
 ```bash
 # Run tests using hatch
-hatch run test
+uv run pytest
 ```
 
 ### Code Quality with Ruff
 ```bash
 # Check for linting issues
-ruff check .
+uv run ruff check .
 
 # Auto-fix linting issues where possible
-ruff check . --fix
+uv run ruff check . --fix
 
 # Format code (optional)
-ruff format .
+uv run ruff format .
 ```
 
 ## Links

@@ -1,23 +1,75 @@
 """Analyses to run depending on the type of data domain"""
+
 from abc import ABC, abstractmethod
+from typing import Generic, TypeVar
 
 import pandas as pd
 import polars as pl
 from pydantic import BaseModel
 
+TabularDataType = TypeVar('TabularDataType')
 
 class TabularStatistics(BaseModel):
     column_name: str
-    count: float = None
-    highest_quantile: float | None = None # 75% percentile
-    middle_quantile: float | None = None # 50% percentile
-    lowest_quantile: float | None = None # 25% percentile
+    count: float | None = None
+    highest_quantile: float | None = None  # 75% percentile
+    middle_quantile: float | None = None   # 50% percentile
+    lowest_quantile: float | None = None   # 25% percentile
     max_val: float | None = None
     min_val: float | None = None
     mean_val: float | None = None
     std_val: float | None = None
 
-TabularDataType = pd.DataFrame | pl.DataFrame
+    @property
+    def markdown(self) -> str:
+        """Convert this TabularStatistics instance to markdown format.
+
+        Returns:
+            str: Markdown representation of the statistics for this column.
+        """
+        lines = []
+        lines.append(f'**Column: {self.column_name}**')
+        lines.append(f'- Count: {self.count}')
+
+        if self.mean_val is not None:
+            lines.append(f'- Mean: {self.mean_val:.4f}')
+        if self.std_val is not None:
+            lines.append(f'- Standard Deviation: {self.std_val:.4f}')
+        if self.min_val is not None:
+            lines.append(f'- Min: {self.min_val}')
+        if self.max_val is not None:
+            lines.append(f'- Max: {self.max_val}')
+        if self.lowest_quantile is not None:
+            lines.append(f'- 25th Percentile: {self.lowest_quantile}')
+        if self.middle_quantile is not None:
+            lines.append(f'- Median: {self.middle_quantile}')
+        if self.highest_quantile is not None:
+            lines.append(f'- 75th Percentile: {self.highest_quantile}')
+
+        return '\n'.join(lines)
+
+    @staticmethod
+    def format_tabular_statistics_to_markdown(statistics: list['TabularStatistics']) -> str:
+        """Format a list of TabularStatistics to markdown format.
+
+        Args:
+            statistics: List of TabularStatistics to format.
+
+        Returns:
+            str: Markdown representation of all statistics with section header.
+        """
+        if not statistics:
+            return ''
+
+        lines = []
+        lines.append('#### Statistical Analysis')
+        lines.append('')
+
+        for stat in statistics:
+            lines.append(stat.markdown)
+            lines.append('')
+
+        return '\n'.join(lines)
 
 
 class BaseAnalyses:
@@ -38,17 +90,17 @@ class SoundAnalyses:
         pass
 
 
-class TabularAnalysesStrategy(ABC):
+class TabularAnalysesStrategy(ABC, Generic[TabularDataType]):
     """Tabular analyses strategy interface defining common methods for all tabular analyses."""
     @abstractmethod
-    def describe(self, data: TabularDataType) -> None:
+    def describe(self, data: TabularDataType) -> list[TabularStatistics]:
         """Describes the tabular data.
 
         Args:
             data (TabularDataType): The input tabular data to be analyzed.
 
         Returns:
-            None
+            list[TabularStatistics]: A list of TabularStatistics objects.
         """
 
 
@@ -86,7 +138,7 @@ class TabularDataContext:
         self._strategy = strategy
 
 
-    def calculate_tabular_statistics(self, data: TabularDataType) -> None:
+    def calculate_tabular_statistics(self, data: TabularDataType) -> list[TabularStatistics]:
         """Calculate and return the statistical information of the given tabular data.
 
         Args:
@@ -98,7 +150,7 @@ class TabularDataContext:
         return self._strategy.describe(data)
 
 
-class PolarsTabularAnalyses(TabularAnalysesStrategy):
+class PolarsTabularAnalyses(TabularAnalysesStrategy[pl.DataFrame]):
     """Polars-based implementation of Tabular Analyses Strategy.
 
     This class extends the `TabularAnalysesStrategy` to analyze tabular data using polars.
@@ -165,7 +217,7 @@ class PolarsTabularAnalyses(TabularAnalysesStrategy):
         return tabular_statistics
 
 
-class PandasTabularAnalyses(TabularAnalysesStrategy):
+class PandasTabularAnalyses(TabularAnalysesStrategy[pd.DataFrame]):
     """Pandas-based implementation of Tabular Analyses Strategy.
 
     This class extends the `TabularAnalysesStrategy` to analyze tabular data using pandas.
