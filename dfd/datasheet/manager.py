@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from .structures import DatasheetInformationCard, DatasheetSection, DatasheetStructure
+from .structures import CardType, DatasheetInformationCard, DatasheetSection, DatasheetStructure
 from .template import DatasheetTemplate
 
 
@@ -36,7 +36,7 @@ class TemplateManager:
             A DatasheetStructure containing cards for all template sections
         """
         if self._cached_structure is not None:
-            return self._cached_structure
+            return self._cached_structure.model_copy(deep=True)
 
         structure = DatasheetStructure(
             title='Dataset Datasheet',
@@ -63,6 +63,10 @@ class TemplateManager:
                         sub_heading=subsection_name,
                         questions=[]  # Questions will be extracted from template content
                     )
+                    if section_enum == DatasheetSection.AUTOMATED_ANALYSIS:
+                        card.card_type = CardType.AUTOMATED
+                        card.auto_populated = False
+                        card.text = '[This section will be automatically populated by the compiler]'
                     structure.add_card(card)
             else:
                 # Handle section without subsections
@@ -72,10 +76,14 @@ class TemplateManager:
                     sub_heading=None,
                     questions=[]
                 )
+                if section_enum == DatasheetSection.AUTOMATED_ANALYSIS:
+                    card.card_type = CardType.AUTOMATED
+                    card.auto_populated = False
+                    card.text = '[This section will be automatically populated by the compiler]'
                 structure.add_card(card)
 
         self._cached_structure = structure
-        return structure
+        return structure.model_copy(deep=True)
 
     def load_filled_template(self, template_path: str) -> DatasheetStructure:
         """Load a filled template from a markdown file.
@@ -170,7 +178,7 @@ class TemplateManager:
                     filled_data[key] = '\n'.join(current_content).strip()
 
                 # Start new section
-                current_section = line_stripped[3:].strip()
+                current_section = line_stripped[3:].strip().lower().replace(' ', '_')
                 current_subsection = None
                 current_content = []
 
@@ -185,6 +193,8 @@ class TemplateManager:
                 current_content = []
 
             elif line_stripped and not line_stripped.startswith('#'):
+                if line_stripped == '---':
+                    continue
                 # Add content line
                 current_content.append(line_stripped)
 

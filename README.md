@@ -9,10 +9,10 @@ Automatically create standardized documentation ("datasheets") for the datasets 
 Status: Early preview (v0.x). The public API is evolving and subject to change.
 
 ## Features
-- Define and generate dataset datasheets programmatically
-- Extensible building blocks for different data domains (images, sound, tabular)
-- Pluggable layouts and structures to match your documentation needs
-- Python-first: integrate directly into your data/ML workflows
+- Focused support for tabular datasets with pandas and polars backends
+- Automatic summary statistics and data quality diagnostics
+- Markdown templates that combine manual answers with automated insights
+- CLI and Python APIs for integrating datasheet generation into workflows
 
 ## Installation
 Prerequisites: Python 3.10+
@@ -33,37 +33,47 @@ uv pip install -e ".[dev]"
 ```
 
 ## Quickstart
-Create a datasheet using the high-level API:
+
+### CLI workflow
+Generate a template, fill in the manual sections, and compile the final markdown datasheet:
+
+```bash
+# create an empty questionnaire
+dfd template --output docs/datasheet_template.md
+
+# after answering the questions in docs/datasheet_template.md, combine it with a dataset
+dfd build \
+  --data data/customers.csv \
+  --template docs/datasheet_template.md \
+  --output docs/datasheet.md \
+  --name "Customer Churn" \
+  --backend auto
 ```
-from dfd import Datasheet
 
-# Initialize a datasheet
-sheet = Datasheet()
+### Python workflow
+Use the programmatic API to analyse a dataframe or to build a datasheet directly from a dataset file:
 
-# Build the datasheet (runs the configured pipeline)
+```python
+import pandas as pd
+
+from dfd import Datasheet, build_datasheet
+
+df = pd.read_csv("data/customers.csv")
+
+# access automated statistics in-memory
+sheet = Datasheet(data=df)
 sheet.create_datasheet()
+for stat in sheet.data_statistics:
+    print(stat.column_name, stat.mean_val)
 
-# Persist the datasheet (e.g., as HTML or PDF; implementation WIP)
-sheet.store_datasheet()
-```
-
-## Using analyses and layouts (preview)
-You can leverage predefined analyses for specific data domains and choose a layout style. These building blocks are available today, and the configuration APIs will be expanded in future releases.
-```
-from dfd import Datasheet
-from dfd.dataset import ImageAnalyses, SoundAnalyses, TabularAnalyses
-from dfd.datasheet import SafetyEU, BaseLayout, HumanDatasheet, NonHumanDatasheet
-
-image_analyses = ImageAnalyses()
-layout = SafetyEU()           # or: BaseLayout()
-structure = HumanDatasheet()  # or: NonHumanDatasheet()
-
-sheet = Datasheet()
-# Upcoming releases will provide a clear way to attach analyses/layout/structure
-# e.g., sheet.configure(analyses=image_analyses, layout=layout, structure=structure)
-
-sheet.create_datasheet()
-sheet.store_datasheet()
+# write a markdown datasheet using automated analysis only
+build_datasheet(
+    dataset_path="data/customers.csv",
+    output_path="docs/auto_datasheet.md",
+    template_path=None,
+    dataset_name="Customer Churn",
+    backend="auto",
+)
 ```
 
 ## Development

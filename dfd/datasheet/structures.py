@@ -116,6 +116,17 @@ class DatasheetInformationCard(BaseModel):
 
         return '\n'.join(lines)
 
+    def populate_automated(
+        self,
+        description: str,
+        result_data: list[TabularStatistics]
+    ) -> None:
+        self.text = description
+        self.result_data = result_data
+        self.card_type = CardType.AUTOMATED
+        self.template_questions = []
+        self.auto_populated = True
+
     @classmethod
     def create_from_template(cls,
                            section: DatasheetSection,
@@ -218,6 +229,22 @@ class DatasheetStructure(BaseModel):
         """
         return [card for card in self.cards if card.section == section]
 
+    def find_card(
+        self,
+        *,
+        section: DatasheetSection,
+        sub_heading: str | None = None,
+        heading: str | None = None
+    ) -> DatasheetInformationCard | None:
+        for card in self.cards:
+            if card.section != section:
+                continue
+            if sub_heading is not None and card.sub_heading == sub_heading:
+                return card
+            if sub_heading is None and heading is not None and card.heading == heading:
+                return card
+        return None
+
     def is_complete(self) -> bool:
         """Check if the datasheet is complete.
 
@@ -302,6 +329,9 @@ class DatasheetStructure(BaseModel):
         ])
 
         # Get section order from layout or use default
+        if layout is None:
+            from dfd.datasheet.layout import BaseLayout # TODO: Fix circular import
+            layout = BaseLayout()
         sections_order = layout.get_ordered_sections()
 
         for section in sections_order:

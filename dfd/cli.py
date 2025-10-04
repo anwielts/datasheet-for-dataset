@@ -1,167 +1,92 @@
-"""Command-line interface for datasheet generation tool."""
+"""Command-line interface for datasheet generation."""
+
+from __future__ import annotations
+
 import argparse
 import sys
 from pathlib import Path
 
-import pandas as pd
-
-from dfd.datasheet.compiler import DatasheetCompiler
-from dfd.datasheet.manager import TemplateManager
+from dfd.api import DatasetBackend, build_datasheet, generate_template
 
 
-def generate_template(output_path: str | None = None) -> str:
-    """Generate an empty datasheet questionnaire template.
-
-    Args:
-        output_path: Optional path where to save the template. If None, saves to current directory.
-
-    Returns:
-        str: Path to the generated template file.
-    """
-    manager = TemplateManager()
-
-    if output_path is None:
-        output_path = 'datasheet_template.md'
-
-    # Ensure the output directory exists
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-
-    # Generate and save the template
-    manager.generate_empty_template(str(output_file))
-
-    return str(output_file.absolute())
-
-
-def create_datasheet_from_template(template_path: str, data_path: str, output_path: str | None = None) -> str:
-    """Create a complete datasheet from a filled template and dataset.
-
-    Args:
-        template_path: Path to the filled template file.
-        data_path: Path to the dataset file (CSV, JSON, etc.).
-        output_path: Optional path where to save the complete datasheet.
-
-    Returns:
-        str: Path to the generated datasheet file.
-    """
-    # Load dataset
-    try:
-        if data_path.endswith('.csv'):
-            dataset = pd.read_csv(data_path)
-        elif data_path.endswith('.parquet'):
-            dataset = pd.read_parquet(data_path)
-    except FileNotFoundError as e:
-        msg = f'Error loading dataset: {e}'
-        raise ValueError(msg) from e
-
-    # Set default output path if not provided
-    if output_path is None:
-        output_path = 'complete_datasheet.md'
-    try:
-        # Create compiler and compile datasheet
-        compiler = DatasheetCompiler()
-        result_path = compiler.compile_from_template(
-            template_path=template_path,
-            dataset=dataset,
-            output_path=output_path
-        )
-
-        return str(Path(result_path).absolute())
-
-    except Exception as e:
-        msg = f'Error creating datasheet: {e}'
-        raise RuntimeError(msg) from e
-
-
-def main():
-    """Main CLI entry point."""
+def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description='Datasheet for Dataset - Semi-automatic datasheet generation tool',
+        description='Generate datasheets for tabular datasets.',
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog='''
-        Examples:
-        # Generate an empty template
-        dfd generate-template
-
-        # Generate template to specific location
-        dfd generate-template --output /path/to/my_template.md
-
-        # Create datasheet from filled template and dataset (coming soon)
-        dfd create-datasheet --template filled_template.md --data dataset.csv
-        '''
+        epilog=(
+            'Examples:\n'
+            '  dfd template --output docs/datasheet_template.md\n'
+            '  dfd build --data data/customers.csv --template filled_template.md --output docs/datasheet.md\n'
+            '  dfd build --data data/customers.csv --output docs/auto_datasheet.md --backend polars'
+        )
     )
 
     subparsers = parser.add_subparsers(dest='command', help='Available commands')
 
-    # Generate template command
-    template_parser = subparsers.add_parser(
-        'generate-template',
-        help='Generate an empty datasheet questionnaire template'
-    )
+    template_parser = subparsers.add_parser('template', help='Generate an empty datasheet template')
     template_parser.add_argument(
         '--output', '-o',
         type=str,
         help='Output path for the template file (default: datasheet_template.md)'
     )
 
-    # Create datasheet command (placeholder for future implementation)
-    create_parser = subparsers.add_parser(
-        'create-datasheet',
-        help='Create a complete datasheet from template and dataset'
-    )
-    create_parser.add_argument(
-        '--template', '-t',
-        type=str,
-        required=True,
-        help='Path to the filled template file'
-    )
-    create_parser.add_argument(
-        '--data', '-d',
-        type=str,
-        required=True,
-        help='Path to the dataset file'
-    )
-    create_parser.add_argument(
-        '--output', '-o',
-        type=str,
-        help='Output path for the complete datasheet'
+    build_parser = subparsers.add_parser('build', help='Compile a datasheet for a tabular dataset')
+    build_parser.add_argument('--data', '-d', required=True, help='Path to the dataset (CSV/TSV/Parquet/JSON)')
+    build_parser.add_argument('--template', '-t', help='Path to a filled template markdown file')
+    build_parser.add_argument('--output', '-o', default='complete_datasheet.md', help='Output path for the compiled datasheet')
+    build_parser.add_argument('--name', '-n', help='Dataset name to show in the datasheet heading')
+    build_parser.add_argument('--version', '-v', default='1.0', help='Datasheet version string')
+    build_parser.add_argument(
+        '--backend',
+        choices=['auto', 'pandas', 'polars'],
+        default='auto',
+        help='Dataframe backend used for loading and analysing the dataset'
     )
 
-    args = parser.parse_args()
+    return parser
 
-    if args.command == 'generate-template':
+
+def main(argv: list[str] | None = None) -> int:
+    parser = _build_parser()
+    args = parser.parse_args(argv)
+
+    if args.command == 'template':
         try:
             output_file = generate_template(args.output)
-            print('✅ Empty datasheet template generated successfully!')
-            print(f'📄 Template saved to: {output_file}')
-            print('\n📝 Next steps:')
-            print('   1. Open the template file and fill in the documentation sections')
-            print("   2. Use 'dfd create-datasheet' to combine with your dataset (coming soon)")
-        except (OSError, ValueError) as e:
-            print(f'❌ Error generating template: {e}')
+        except (OSError, ValueError) as exc:
+            print(f'❌ Failed to generate template: {exc}')
             return 1
 
-    elif args.command == 'create-datasheet':
+        print('✅ Template generated')
+        print(f'📄 Saved to: {output_file}')
+        print('\nNext steps:')
+        print('  - Fill in the template with dataset context')
+        print('  - Run `dfd build --data <file> --template <filled_template>` to merge analysis')
+        return 0
+
+    if args.command == 'build':
+        backend: DatasetBackend = args.backend
         try:
-            output_file = create_datasheet_from_template(
-                args.template,
-                args.data,
-                args.output
+            result = build_datasheet(
+                dataset_path=args.data,
+                output_path=args.output,
+                template_path=args.template,
+                dataset_name=args.name,
+                version=args.version,
+                backend=backend
             )
-            print('✅ Complete datasheet generated successfully!')
-            print(f'📄 Datasheet saved to: {output_file}')
-        except NotImplementedError as e:
-            print(f'🚧 {e}')
-            return 1
-        except (FileNotFoundError, ValueError) as e:
-            print(f'❌ Error creating datasheet: {e}')
+        except (FileNotFoundError, ValueError, RuntimeError) as exc:
+            print(f'❌ Failed to build datasheet: {exc}')
             return 1
 
-    else:
-        parser.print_help()
-        return 1
+        print('✅ Datasheet created')
+        print(f'📄 Saved to: {Path(result).absolute()}')
+        if not args.template:
+            print('ℹ️ Generated using automated analysis only (no manual template provided).')
+        return 0
 
-    return 0
+    parser.print_help()
+    return 1
 
 
 if __name__ == '__main__':

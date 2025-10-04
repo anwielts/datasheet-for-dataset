@@ -1,33 +1,52 @@
-import pandas as pd
-import polars as pl
+from pathlib import Path
 
-from dfd.create import Datasheet
-from dfd.dataset.analyses import PandasTabularAnalyses, PolarsTabularAnalyses, TabularDataContext
-from dfd.datasheet.structures import DatasheetInformationCard
+import pandas as pd
+
+from dfd import Datasheet, build_datasheet, generate_template
+
+
+def analyze_dataframe_in_python() -> None:
+    df = pd.DataFrame(
+        {
+            'customer_id': [1, 2, 3, 4],
+            'monthly_spend': [99.5, 120.0, 75.25, 88.0],
+            'segment': ['startup', 'enterprise', 'startup', 'smb'],
+        }
+    )
+
+    sheet = Datasheet(data=df)
+    sheet.create_datasheet()
+
+    for stat in sheet.data_statistics:
+        print(f"{stat.column_name}: mean={stat.mean_val}, std={stat.std_val}")
+
+
+def build_markdown_datasheet() -> None:
+    data_dir = Path('examples/data')
+    data_dir.mkdir(parents=True, exist_ok=True)
+    dataset_path = data_dir / 'customers.csv'
+
+    df = pd.DataFrame(
+        {
+            'customer_id': range(1, 6),
+            'monthly_spend': [120.0, 99.5, 87.0, 130.25, 110.75],
+            'segment': ['enterprise', 'startup', 'smb', 'enterprise', 'startup'],
+        }
+    )
+    df.to_csv(dataset_path, index=False)
+
+    template_path = generate_template('examples/data/datasheet_template.md')
+    output_path = build_datasheet(
+        dataset_path=str(dataset_path),
+        output_path='examples/data/datasheet.md',
+        template_path=None,
+        dataset_name='Sample Customers',
+    )
+
+    print(f'Template saved to {template_path}')
+    print(f'Compiled datasheet saved to {output_path}')
+
 
 if __name__ == '__main__':
-    # How to use the datasheet for dataset lib
-
-    # Provided questionnaire
-    datasheet_infos = [DatasheetInformationCard(heading='Example section 1', sub_heading='Intro', text='Example showcasing lib usage.'),
-                       DatasheetInformationCard(heading='Example section 1', sub_heading='Motivation', text='One example speaks m9ore than 1000 words.'),
-                       DatasheetInformationCard(heading='Example section 2', sub_heading='Data', text='Descriptive statistics for tabular example data.')]
-
-    # provide example data, run tabular data analyses
-    d = {'a': [1, 2], 'b': ['A', 'B']}
-    df_pd = pd.DataFrame(data=d)
-    df_pl = pl.DataFrame(d)
-
-    # you can run the analysis on polars dataframes
-    context = TabularDataContext(PolarsTabularAnalyses())
-    stats_pl = context.calculate_tabular_statistics(df_pl)
-
-    # or you can also run the analysis on pandas dataframes
-    context = TabularDataContext(PandasTabularAnalyses())
-    stats_pd = context.calculate_tabular_statistics(df_pd)
-
-    # Create Datasheet
-    datasheet = Datasheet(data=df_pl, analysis=PolarsTabularAnalyses())
-    datasheet.datasheet_info_cards = datasheet_infos
-    datasheet.create_datasheet()
-    datasheet.datasheet_info_cards[2].result_data = datasheet.data_statistics
+    analyze_dataframe_in_python()
+    build_markdown_datasheet()
