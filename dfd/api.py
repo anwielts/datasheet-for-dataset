@@ -68,12 +68,16 @@ def load_tabular_dataset(path: str, backend: DatasetBackend = 'auto') -> pd.Data
 
     import pandas as pd  
     if extension == '.csv':
-        return pd.read_csv(file_path)
+        return pd.read_csv(str(file_path))
     if extension == '.tsv':
         return pd.read_csv(file_path, sep='\t')
     if extension == '.parquet':
         return pd.read_parquet(file_path)
-    return pd.read_json(file_path)
+    if extension == '.json':
+        return pd.read_json(file_path)
+
+    msg = 'Pandas backend supports CSV, TSV, Parquet, and JSON inputs.'
+    raise ValueError(msg)
 
 
 def build_datasheet(

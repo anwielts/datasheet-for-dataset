@@ -49,4 +49,5 @@ dev = [
     "pytest>=8.3",
     "pytest-cov",
     "pytest-xdist",
+    "pandas-stubs",
 ]

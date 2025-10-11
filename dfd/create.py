@@ -18,7 +18,7 @@ class Datasheet:
     def __init__(
         self,
         data: pd.DataFrame | pl.DataFrame,
-        analysis: TabularAnalysesStrategy | Literal['auto', 'pandas', 'polars'] | None = 'auto',
+        analysis: TabularAnalysesStrategy[pd.DataFrame | pl.DataFrame] | Literal['auto', 'pandas', 'polars'] | None = 'auto',
         layout: None = None,
         dataset_name: str | None = None
     ) -> None:

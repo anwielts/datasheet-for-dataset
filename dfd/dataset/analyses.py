@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Generic, Iterable, Literal, Sequence, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Generic, Iterable, Literal, Sequence, TypeAlias, TypeVar, cast
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -172,13 +172,6 @@ class PandasTabularAnalyses(TabularAnalysesStrategy[pd.DataFrame]):
                 std_val=pick('std')
             )
 
-
-def to_float(value: float | int | None) -> float | None:
-    if value is None:
-        return None
-    val = float(value)
-    return val
-
 class PolarsTabularAnalyses(TabularAnalysesStrategy[pl.DataFrame]):
     def describe(self, data: pl.DataFrame) -> list[TabularStatistics]:
         results: list[TabularStatistics] = []
@@ -187,12 +180,21 @@ class PolarsTabularAnalyses(TabularAnalysesStrategy[pl.DataFrame]):
             non_null = series.drop_nulls()
             count = float(non_null.len())
 
-            if series.dtype.is_numeric():
-                quantile = lambda q: to_float(non_null.quantile(q, interpolation='linear')) if non_null.len() else None
-                mean_val = to_float(non_null.mean())
-                std_val = to_float(non_null.std())
-                max_val = to_float(non_null.max())
-                min_val = to_float(non_null.min())
+            def quantile(q: float) -> float | None:
+                if count == 0:
+                    return None
+                q_value = non_null.quantile(q, interpolation='linear')
+
+                if q_value is None:
+                    return None
+                return float(q_value)
+
+            if series.dtype.is_numeric() and count > 0:
+                # We cast to float, otherwhise typechecking makes me crazy
+                std_val = cast(float, non_null.std())
+                mean_val = cast(float, non_null.mean())
+                max_val = cast(float, non_null.max())
+                min_val = cast(float, non_null.min())
                 highest = quantile(0.75)
                 middle = quantile(0.5)
                 lowest = quantile(0.25)
