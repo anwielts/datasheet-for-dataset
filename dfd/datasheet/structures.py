@@ -5,9 +5,7 @@ from typing import TYPE_CHECKING, Any, Optional
 from pydantic import BaseModel, Field
 
 from dfd.dataset.analyses import TabularStatistics
-
-if TYPE_CHECKING: # circular import otherwise
-    from dfd.datasheet.layout import BaseLayout
+from dfd.datasheet.layout import (DatasheetSection, BaseLayout)
 
 
 class CardType(str, Enum):
@@ -15,18 +13,6 @@ class CardType(str, Enum):
     MANUAL = 'manual'  # User-filled content
     AUTOMATED = 'automated'  # System-generated content
     MIXED = 'mixed'  # Combination of both
-
-
-class DatasheetSection(str, Enum):
-    """Standard datasheet sections based on the paper."""
-    MOTIVATION = 'motivation'
-    COMPOSITION = 'composition'
-    COLLECTION_PROCESS = 'collection_process'
-    PREPROCESSING = 'preprocessing'
-    USES = 'uses'
-    DISTRIBUTION = 'distribution'
-    MAINTENANCE = 'maintenance'
-    AUTOMATED_ANALYSIS = 'automated_analysis'
 
 
 class DatasheetInformationCard(BaseModel):
@@ -330,7 +316,6 @@ class DatasheetStructure(BaseModel):
 
         # Get section order from layout or use default
         if layout is None:
-            from dfd.datasheet.layout import BaseLayout # TODO: Fix circular import
             layout = BaseLayout()
         sections_order = layout.get_ordered_sections()
 

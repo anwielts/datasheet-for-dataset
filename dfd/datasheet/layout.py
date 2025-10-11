@@ -1,8 +1,17 @@
 """Definitions of how the datasheet should look like"""
 from typing import ClassVar
+from enum import Enum
 
-from dfd.datasheet.structures import DatasheetSection
-
+class DatasheetSection(str, Enum):
+    """Standard datasheet sections based on the paper."""
+    MOTIVATION = 'motivation'
+    COMPOSITION = 'composition'
+    COLLECTION_PROCESS = 'collection_process'
+    PREPROCESSING = 'preprocessing'
+    USES = 'uses'
+    DISTRIBUTION = 'distribution'
+    MAINTENANCE = 'maintenance'
+    AUTOMATED_ANALYSIS = 'automated_analysis'
 
 def _check_for_required_sections(sections: list[DatasheetSection], required_sections: list[DatasheetSection]):
     """
