@@ -14,6 +14,14 @@ TabularDataType = TypeVar('TabularDataType', bound=DataFrameType)
 allowed_backends = {'auto', 'pandas', 'polars'}
 
 def _format_number(value: float | int | None) -> str:
+    """Format a number for markdown output.
+    
+    Args:
+        value: The number to format.
+
+    Returns:
+        The formatted number as a string.
+    """
     if value is None:
         return 'N/A'
     if isinstance(value, float):
@@ -22,6 +30,7 @@ def _format_number(value: float | int | None) -> str:
 
 
 class TabularStatistics(BaseModel):
+    """Statistical analysis of a tabular data column."""
     column_name: str
     count: float | None = None
     highest_quantile: float | None = None
@@ -34,6 +43,7 @@ class TabularStatistics(BaseModel):
 
     @property
     def markdown(self) -> str:
+        """Return the statistics as a markdown string."""
         lines: list[str] = [f'**Column: {self.column_name}**']
         lines.append(f'- Count: {_format_number(self.count)}')
         lines.append(f'- Mean: {_format_number(self.mean_val)}')
@@ -47,6 +57,14 @@ class TabularStatistics(BaseModel):
 
     @staticmethod
     def format_tabular_statistics_to_markdown(statistics: Sequence['TabularStatistics']) -> str:
+        """Format a list of TabularStatistics to a markdown string.
+
+        Args:
+            statistics: The list of TabularStatistics to format.
+
+        Returns:
+            The formatted markdown string.
+        """
         if not statistics:
             return ''
         lines = ['#### Statistical Analysis', '']
@@ -75,6 +93,14 @@ class TabularDataContext:
         self,
         data: DataFrameType
     ) -> tuple[TabularAnalysesStrategy, DataFrameType]:
+        """Resolve the analysis strategy and prepare the data if necessary.
+
+        Args:
+            data: The tabular data to analyze.
+
+        Returns:
+            A tuple of the resolved strategy and the prepared data.
+        """
         if isinstance(self._strategy_specifier, TabularAnalysesStrategy):
             return self._strategy_specifier, data
 

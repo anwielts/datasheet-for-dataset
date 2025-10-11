@@ -13,6 +13,14 @@ from .structures import CardType, DatasheetInformationCard, DatasheetSection, Da
 
 
 def _format_number(value: float | int | None) -> str:
+    """Format a number for display in the datasheet.
+    
+    Args:
+        value: The number to format
+    
+    Returns:
+        Formatted string representation of the number
+    """
     if value is None:
         return 'N/A'
     if isinstance(value, float):
@@ -222,6 +230,14 @@ class DatasheetCompiler:
         self,
         statistics: list[TabularStatistics]
     ) -> TabularStatistics | None:
+        """Select a representative statistical summary from the list.
+
+        Args:
+            statistics: List of TabularStatistics objects
+        
+        Returns:
+            A representative TabularStatistics object or None if none found
+        """
         for stat in statistics:
             if stat.mean_val is not None or stat.std_val is not None:
                 return stat
@@ -233,6 +249,16 @@ class DatasheetCompiler:
         dataset: pd.DataFrame | pl.DataFrame,
         statistics: list[TabularStatistics]
     ) -> str:
+        """Format a markdown description of dataset statistics.
+
+        Args:
+            stats: A representative TabularStatistics object or None
+            dataset: The dataset being analyzed
+            statistics: List of all TabularStatistics objects
+
+        Returns:
+            Formatted markdown string summarizing dataset statistics
+        """
         rows, cols = dataset.shape
         dtype_counts = self._collect_dtype_counts(dataset)
         numeric_columns = sum(1 for stat in statistics if stat.mean_val is not None)
@@ -270,6 +296,14 @@ class DatasheetCompiler:
         return '\n'.join(lines)
 
     def _format_quality_assessment(self, dataset: pd.DataFrame | pl.DataFrame) -> str:
+        """Format a markdown description of dataset quality.
+
+        Args:
+            dataset: The dataset being analyzed
+
+        Returns:
+            Formatted markdown string summarizing dataset quality
+        """
         if isinstance(dataset, pl.DataFrame):
             pandas_df = dataset.to_pandas()
         else:
@@ -306,6 +340,14 @@ class DatasheetCompiler:
         self,
         dataset: pd.DataFrame | pl.DataFrame
     ) -> dict[str, int]:
+        """Collect counts of each data type in the dataset.
+
+        Args:
+            dataset: The dataset being analyzed
+
+        Returns:
+            Dictionary mapping data type names to their counts
+        """
         if isinstance(dataset, pd.DataFrame):
             series = dataset.dtypes.astype(str).value_counts()
             return {str(dtype): int(count) for dtype, count in series.items()}
@@ -316,6 +358,11 @@ class DatasheetCompiler:
         return summary
 
     def _fill_automated_placeholders(self, structure: DatasheetStructure) -> None:
+        """Fill in placeholder cards for pending automated analyses.
+
+        Args:
+            structure: The datasheet structure to enhance
+        """
         pending_messages = {
             'Distribution Analysis': 'Automated distribution analysis will be available in a future release.',
             'Missing Data Analysis': 'Automated missing-data diagnostics will be available in a future release.',

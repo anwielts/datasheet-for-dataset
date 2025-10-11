@@ -222,6 +222,16 @@ class DatasheetStructure(BaseModel):
         sub_heading: str | None = None,
         heading: str | None = None
     ) -> DatasheetInformationCard | None:
+        """Find a specific card by section and optional headings.
+
+        Args:
+            section: The section to search in.
+            sub_heading: Optional sub-heading to match.
+            heading: Optional main heading to match if sub_heading is None.
+
+        Returns:
+            The matching card, or None if not found.
+        """
         for card in self.cards:
             if card.section != section:
                 continue

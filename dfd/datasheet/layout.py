@@ -13,6 +13,7 @@ class DatasheetSection(str, Enum):
     MAINTENANCE = 'maintenance'
     AUTOMATED_ANALYSIS = 'automated_analysis'
 
+
 def _check_for_required_sections(sections: list[DatasheetSection], required_sections: list[DatasheetSection]):
     """
     Validates that all required sections are present in the provided sections list.
