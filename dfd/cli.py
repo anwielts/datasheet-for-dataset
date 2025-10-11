@@ -10,6 +10,7 @@ from dfd.api import DatasetBackend, build_datasheet, generate_template
 
 
 def _build_parser() -> argparse.ArgumentParser:
+    """Construct the argument parser for the CLI."""
     parser = argparse.ArgumentParser(
         description='Generate datasheets for tabular datasets.',
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -47,6 +48,14 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Main entry point for the CLI.
+    
+    Args:
+        List of command-line arguments. If None, uses
+    
+    Returns:
+        Exit code (0 for success, 1 for failure).
+    """
     parser = _build_parser()
     args = parser.parse_args(argv)
 

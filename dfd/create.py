@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, TYPE_CHECKING
 
-import pandas as pd
-import polars as pl
+if TYPE_CHECKING:
+    import pandas as pd
+    import polars as pl
 
 from dfd.dataset import TabularDataContext
 from dfd.dataset.analyses import TabularAnalysesStrategy
@@ -29,14 +30,18 @@ class Datasheet:
         self.datasheet_info_cards = None
 
     def _run_analyses(self) -> None:
+        """Run analyses on the dataset to extract statistics and insights."""
         self.data_statistics = self._context.calculate_tabular_statistics(self.data)
 
     def _setup_layout(self) -> None:  # placeholder for future layout logic
+        """Setup the layout for the datasheet based on the provided or default layout."""
         return None
 
     def create_datasheet(self) -> None:
+        """Create the datasheet by running analyses and setting up the layout."""
         self._run_analyses()
         self._setup_layout()
 
     def store_datasheet(self) -> None:  # storage will be handled by compiler utilities
+        """Store the created datasheet in the desired format."""
         return None

@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
-import pandas as pd
-import polars as pl
+if TYPE_CHECKING:
+    import pandas as pd
+    import polars as pl
 
 from dfd.datasheet.compiler import DatasheetCompiler
 from dfd.datasheet.manager import TemplateManager
@@ -16,7 +17,15 @@ SUPPORTED_DATA_EXTENSIONS = {'.csv', '.tsv', '.parquet', '.json'}
 
 
 def generate_template(output_path: str | None = None) -> str:
-    """Generate an empty datasheet template and return its path."""
+    """Generate an empty datasheet template and return its path.
+    
+    Args:
+        output_path: Optional path to save the generated template. Defaults to 'datasheet_template.md
+                     in the current directory.
+                     
+    Returns:
+        The absolute path to the generated template file.
+    """
     manager = TemplateManager()
     output = Path(output_path) if output_path else Path('datasheet_template.md')
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -25,7 +34,15 @@ def generate_template(output_path: str | None = None) -> str:
 
 
 def load_tabular_dataset(path: str, backend: DatasetBackend = 'auto') -> pd.DataFrame | pl.DataFrame:
-    """Load a dataset into a pandas or polars DataFrame."""
+    """Load a dataset into a pandas or polars DataFrame.
+    
+    Args:
+        path: The file path to the dataset.
+        backend: The backend to use for loading the dataset.
+
+    Returns:
+        A pandas or polars DataFrame containing the loaded dataset.
+    """
     file_path = Path(path)
     if not file_path.exists():
         msg = f'Dataset file not found: {file_path}'
@@ -39,7 +56,8 @@ def load_tabular_dataset(path: str, backend: DatasetBackend = 'auto') -> pd.Data
         )
         raise ValueError(msg)
 
-    if backend == 'polars':
+    if backend in {'polars', 'auto'}:
+        import polars as pl
         if extension in {'.csv', '.tsv'}:
             separator = '\t' if extension == '.tsv' else ','
             return pl.read_csv(file_path, separator=separator)
@@ -48,6 +66,7 @@ def load_tabular_dataset(path: str, backend: DatasetBackend = 'auto') -> pd.Data
         msg = 'Polars backend supports CSV, TSV, and Parquet inputs.'
         raise ValueError(msg)
 
+    import pandas as pd  
     if extension == '.csv':
         return pd.read_csv(file_path)
     if extension == '.tsv':
@@ -65,7 +84,19 @@ def build_datasheet(
     version: str = '1.0',
     backend: DatasetBackend = 'auto'
 ) -> str:
-    """Compile a datasheet for a tabular dataset."""
+    """Compile a datasheet for a tabular dataset.
+    
+    Args:
+        dataset_path: Path to the dataset file.
+        output_path: Path to save the compiled datasheet.
+        template_path: Optional path to a markdown template for the datasheet.
+        dataset_name: Optional name for the dataset. If not provided, inferred from the dataset file name.
+        version: Version of the datasheet format to use.
+        backend: Backend to use for loading the dataset.
+    
+    Returns:
+        The path to the compiled datasheet.
+    """
     dataset = load_tabular_dataset(dataset_path, backend)
     compiler = DatasheetCompiler()
 

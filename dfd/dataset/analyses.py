@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Generic, Iterable, Literal, Sequence, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Generic, Iterable, Literal, Sequence, TypeAlias, TypeVar
 
-import pandas as pd
-import polars as pl
+if TYPE_CHECKING:
+    import pandas as pd
+    import polars as pl
 from pydantic import BaseModel
 
 DataFrameType: TypeAlias = pd.DataFrame | pl.DataFrame
@@ -110,34 +111,29 @@ class TabularDataContext:
             raise ValueError(msg)
 
         if backend == 'auto':
+            import pandas as pd
             if isinstance(data, pd.DataFrame):
                 return PandasTabularAnalyses(), data
+            import polars as pl
             if isinstance(data, pl.DataFrame):
                 return PolarsTabularAnalyses(), data
             msg = f'Unsupported dataframe type: {type(data)!r}. Only pandas and polars are supported.'
             raise TypeError(msg)
 
         elif backend == 'pandas':
+            import pandas as pd
             if not isinstance(data, pd.DataFrame):
-                if isinstance(data, pl.DataFrame):
-                    converted = data.to_pandas()
-                else:
-                    converted = pd.DataFrame(data)
-            else:
-                converted = data
-            return PandasTabularAnalyses(), converted
+                msg = 'Only pandas DataFrame can be analyzed with pandas backend.'
+                raise TypeError(msg)
+            return PandasTabularAnalyses(), data
 
         elif backend == 'polars':
+            import polars as pl
             if not isinstance(data, pl.DataFrame):
-                if isinstance(data, pd.DataFrame):
-                    converted = pl.DataFrame(data)
-                else:
-                    converted = pl.DataFrame(data)
-            else:
-                converted = data
-        
-        return PolarsTabularAnalyses(), converted
-        
+                msg = 'Only polars DataFrame can be analyzed with polars backend.'
+                raise TypeError(msg)
+            return PolarsTabularAnalyses(), data
+
         else:
             raise ValueError(f'Unhandled backend: {backend!r}')
 
