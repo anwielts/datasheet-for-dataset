@@ -250,7 +250,7 @@ class DatasheetCompiler:
 
         lines.extend(['', '**Statistical Summary:**', f'- Columns with numeric summary: {numeric_columns}'])
 
-        if stats is None:
+        if stats is None: # TODO: Use formatting function of class
             lines.append('- No numeric columns detected for automatic summary.')
         else:
             lines.append(f'- Column analysed: `{stats.column_name}`')

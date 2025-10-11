@@ -36,7 +36,7 @@ class DatasheetTemplate:
             template_name: Name of the template file (without .md extension).
 
         Returns:
-            str: Content of the template file.
+            Content of the template file.
         """
         template_path = self.template_dir / f'{template_name}.md'
         if not template_path.exists():
@@ -48,7 +48,7 @@ class DatasheetTemplate:
         """Generate an empty markdown template for datasheet questionnaire.
 
         Returns:
-            str: Complete markdown template with all sections and questions.
+            Complete markdown template with all sections and questions.
         """
         template_parts = []
 
@@ -70,7 +70,7 @@ class DatasheetTemplate:
         """Get list of all section names.
 
         Returns:
-            List[str]: Names of all sections in the template.
+            Names of all sections in the template.
         """
         return self.section_order.copy()
 
@@ -78,7 +78,7 @@ class DatasheetTemplate:
         """Get list of required section names from the layout.
 
         Returns:
-            List[str]: Names of all required sections.
+            Names of all required sections.
         """
         return [str(section.value) for section in self.layout.required_sections]
 
@@ -89,7 +89,7 @@ class DatasheetTemplate:
             section: Name of the section.
 
         Returns:
-            List[str]: Names of all subsections in the given section.
+            Names of all subsections in the given section.
         """
         try:
             template_content = self._load_template(section)

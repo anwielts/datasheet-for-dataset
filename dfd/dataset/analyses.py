@@ -11,7 +11,7 @@ from pydantic import BaseModel
 
 DataFrameType: TypeAlias = pd.DataFrame | pl.DataFrame
 TabularDataType = TypeVar('TabularDataType', bound=DataFrameType)
-
+allowed_backends = {'auto', 'pandas', 'polars'}
 
 def _format_number(value: float | int | None) -> str:
     if value is None:
@@ -79,7 +79,7 @@ class TabularDataContext:
             return self._strategy_specifier, data
 
         backend = 'auto' if self._strategy_specifier is None else self._strategy_specifier
-        if backend not in {'auto', 'pandas', 'polars'}:
+        if backend not in allowed_backends:
             msg = f'Unknown analysis backend: {backend!r}'
             raise ValueError(msg)
 
@@ -91,7 +91,7 @@ class TabularDataContext:
             msg = f'Unsupported dataframe type: {type(data)!r}. Only pandas and polars are supported.'
             raise TypeError(msg)
 
-        if backend == 'pandas':
+        elif backend == 'pandas':
             if not isinstance(data, pd.DataFrame):
                 if isinstance(data, pl.DataFrame):
                     converted = data.to_pandas()
@@ -101,15 +101,19 @@ class TabularDataContext:
                 converted = data
             return PandasTabularAnalyses(), converted
 
-        # backend == 'polars'
-        if not isinstance(data, pl.DataFrame):
-            if isinstance(data, pd.DataFrame):
-                converted = pl.DataFrame(data)
+        elif backend == 'polars':
+            if not isinstance(data, pl.DataFrame):
+                if isinstance(data, pd.DataFrame):
+                    converted = pl.DataFrame(data)
+                else:
+                    converted = pl.DataFrame(data)
             else:
-                converted = pl.DataFrame(data)
-        else:
-            converted = data
+                converted = data
+        
         return PolarsTabularAnalyses(), converted
+        
+        else:
+            raise ValueError(f'Unhandled backend: {backend!r}')
 
     def calculate_tabular_statistics(self, data: DataFrameType) -> list[TabularStatistics]:
         strategy, prepared = self._resolve_strategy(data)
@@ -147,14 +151,14 @@ class PandasTabularAnalyses(TabularAnalysesStrategy[pd.DataFrame]):
             )
 
 
+def to_float(value: float | int | None) -> float | None:
+    if value is None:
+        return None
+    val = float(value)
+    return val
+
 class PolarsTabularAnalyses(TabularAnalysesStrategy[pl.DataFrame]):
     def describe(self, data: pl.DataFrame) -> list[TabularStatistics]:
-        def to_float(value: float | int | None) -> float | None:
-            if value is None:
-                return None
-            val = float(value)
-            return val
-
         results: list[TabularStatistics] = []
         for column in data.columns:
             series = data[column]

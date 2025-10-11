@@ -72,7 +72,7 @@ class DatasheetInformationCard(BaseModel):
         """Check if this card has sufficient content.
 
         Returns:
-            bool: True if the card has meaningful content.
+            True if the card has meaningful content.
         """
         if self.card_type == CardType.AUTOMATED:
             return self.result_data is not None and len(self.result_data) > 0
@@ -87,7 +87,7 @@ class DatasheetInformationCard(BaseModel):
         """Convert this card to markdown format.
 
         Returns:
-            str: Markdown representation of this card.
+            Markdown representation of this card.
         """
         lines = []
 
@@ -142,7 +142,7 @@ class DatasheetInformationCard(BaseModel):
             questions: List of questions from the template.
 
         Returns:
-            DatasheetInformationCard: New card instance.
+            New card instance.
         """
         return cls(
             section=section,
@@ -171,7 +171,7 @@ class DatasheetInformationCard(BaseModel):
             description: Optional description of the analysis.
 
         Returns:
-            DatasheetInformationCard: New automated card instance.
+            New automated card instance.
         """
         return cls(
             section=section,
@@ -225,7 +225,7 @@ class DatasheetStructure(BaseModel):
             section: The section to filter by.
 
         Returns:
-            List[DatasheetInformationCard]: Cards in the specified section.
+            Cards in the specified section.
         """
         return [card for card in self.cards if card.section == section]
 
@@ -249,7 +249,7 @@ class DatasheetStructure(BaseModel):
         """Check if the datasheet is complete.
 
         Returns:
-            bool: True if all required cards are complete.
+            True if all required cards are complete.
         """
         required_cards = [card for card in self.cards if card.is_required]
         return all(card.is_complete() for card in required_cards)
@@ -258,7 +258,7 @@ class DatasheetStructure(BaseModel):
         """Get detailed completion status.
 
         Returns:
-            Dict containing completion statistics.
+            containing completion statistics.
         """
         total_cards = len(self.cards)
         completed_cards = sum(1 for card in self.cards if card.is_complete())
@@ -313,7 +313,7 @@ class DatasheetStructure(BaseModel):
             layout: Optional layout to define section ordering. If None, uses default ordering.
 
         Returns:
-            str: Complete markdown representation of the datasheet.
+            Complete markdown representation of the datasheet.
         """
         lines = []
 

@@ -36,10 +36,6 @@ class BaseLayout:
         sections (List[DatasheetSection]): A list of DatasheetSection objects representing different parts of the datasheet.
         required_sections (List[DatasheetSection]): A list of sections that are considered mandatory.
         section_order (List[DatasheetSection]): The order in which sections should appear.
-
-    Methods:
-        __init__(self, sections: List[DatasheetSection], required_sections: Optional[List[DatasheetSection]] = None):
-            Initializes the BaseLayout object with a list of sections and optional required sections.
     """
     # Layout as describe in the paper "Datasheets for Datasets", https://arxiv.org/pdf/1803.09010
     # Default section order based on the paper
