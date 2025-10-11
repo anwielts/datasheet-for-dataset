@@ -1,9 +1,11 @@
 """Datasheet compilation system for combining manual and automated content."""
 
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-import pandas as pd
-import polars as pl
+if TYPE_CHECKING:
+    import pandas as pd
+    import polars as pl
 
 from dfd.create import Datasheet
 from dfd.dataset.analyses import TabularDataContext, TabularStatistics
@@ -160,10 +162,8 @@ class DatasheetCompiler:
 
         datasheet = Datasheet(
             data=dataset,
-            analysis=None  # Keep as None since that's what the constructor expects
+            analysis=None
         )
-
-        # The datasheet will handle its own analysis through _run_analyses()
 
         return datasheet
 
@@ -243,7 +243,7 @@ class DatasheetCompiler:
                 return stat
         return statistics[0] if statistics else None
 
-    def _format_statistics_description(
+    def _format_statistics_description( # TODO: Use formatting function of class
         self,
         stats: TabularStatistics | None,
         dataset: pd.DataFrame | pl.DataFrame,
@@ -295,7 +295,7 @@ class DatasheetCompiler:
 
         return '\n'.join(lines)
 
-    def _format_quality_assessment(self, dataset: pd.DataFrame | pl.DataFrame) -> str:
+    def _format_quality_assessment(self, dataset: pd.DataFrame | pl.DataFrame) -> str: # TODO: Use formatting function of class
         """Format a markdown description of dataset quality.
 
         Args:
@@ -336,7 +336,7 @@ class DatasheetCompiler:
 
         return '\n'.join(lines)
 
-    def _collect_dtype_counts(
+    def _collect_dtype_counts( # TODO: Use formatting function of class
         self,
         dataset: pd.DataFrame | pl.DataFrame
     ) -> dict[str, int]:
