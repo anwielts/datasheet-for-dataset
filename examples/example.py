@@ -18,7 +18,7 @@ def analyze_dataframe_in_python() -> None:
     sheet.create_datasheet()
 
     for stat in sheet.data_statistics:
-        print(f"{stat.column_name}: mean={stat.mean_val}, std={stat.std_val}")
+        print(f'{stat.column_name}: mean={stat.mean_val}, std={stat.std_val}')
 
 
 def build_markdown_datasheet() -> None:

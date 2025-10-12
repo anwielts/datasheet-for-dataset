@@ -1,6 +1,7 @@
 """Definitions of how the datasheet should look like"""
-from typing import ClassVar
 from enum import Enum
+from typing import ClassVar
+
 
 class DatasheetSection(str, Enum):
     """Standard datasheet sections based on the paper."""

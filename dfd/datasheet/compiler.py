@@ -14,7 +14,7 @@ from .manager import TemplateManager
 from .structures import CardType, DatasheetInformationCard, DatasheetSection, DatasheetStructure
 
 
-def _format_number(value: float | int | None) -> str:
+def _format_number(value: float | None) -> str:
     """Format a number for display in the datasheet.
     
     Args:
@@ -178,7 +178,6 @@ class DatasheetCompiler:
             structure: The datasheet structure to enhance
             dataset: The dataset to analyze
         """
-
         analysis_context = TabularDataContext(strategy='auto')
         stats_list = analysis_context.calculate_tabular_statistics(dataset)
         summary_stat = self._select_summary_stat(stats_list)
@@ -292,7 +291,7 @@ class DatasheetCompiler:
         Returns:
             Formatted markdown string summarizing dataset quality
         """
-        """if isinstance(dataset, pl.DataFrame):
+        '''if isinstance(dataset, pl.DataFrame):
             pandas_df = dataset.to_pandas()
         else:
             pandas_df = dataset
@@ -322,7 +321,7 @@ class DatasheetCompiler:
         else:
             lines.append('- No columns detected.')
 
-        return '\n'.join(lines)"""
+        return '\n'.join(lines)'''
         return 'Automated data quality assessment will be available in a future release.'
 
     def _fill_automated_placeholders(self, structure: DatasheetStructure) -> None:

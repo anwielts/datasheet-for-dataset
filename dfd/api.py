@@ -66,7 +66,7 @@ def load_tabular_dataset(path: str, backend: DatasetBackend = 'auto') -> pd.Data
         msg = 'Polars backend supports CSV, TSV, and Parquet inputs.'
         raise ValueError(msg)
 
-    import pandas as pd  
+    import pandas as pd
     if extension == '.csv':
         return pd.read_csv(str(file_path))
     if extension == '.tsv':
@@ -124,8 +124,8 @@ def build_datasheet(
 
 
 __all__ = [
-    'DatasetBackend',
     'SUPPORTED_DATA_EXTENSIONS',
+    'DatasetBackend',
     'build_datasheet',
     'generate_template',
     'load_tabular_dataset',

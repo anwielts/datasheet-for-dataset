@@ -71,6 +71,7 @@ lint.ignore = [
     "S101", # Use of `assert` statements
     "T201", # Print statements forbidden
     "INP001", # Examples do not count as package
+    "UP006", # Type annotations should not be strings
 ]
 # Allow fix for all enabled rules (when `--fix`) is provided.
 lint.fixable = ["ALL"]

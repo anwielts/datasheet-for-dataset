@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -35,7 +35,7 @@ class Datasheet:
 
     def _setup_layout(self) -> None:  # placeholder for future layout logic
         """Setup the layout for the datasheet based on the provided or default layout."""
-        return None
+        return
 
     def create_datasheet(self) -> None:
         """Create the datasheet by running analyses and setting up the layout."""
@@ -44,4 +44,4 @@ class Datasheet:
 
     def store_datasheet(self) -> None:  # storage will be handled by compiler utilities
         """Store the created datasheet in the desired format."""
-        return None
+        return

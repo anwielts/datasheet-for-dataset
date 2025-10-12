@@ -1,11 +1,11 @@
 """Defines datasheet information cards for the datasheet structure."""
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
 from dfd.dataset.analyses import TabularStatistics
-from dfd.datasheet.layout import (DatasheetSection, BaseLayout)
+from dfd.datasheet.layout import BaseLayout, DatasheetSection
 
 
 class CardType(str, Enum):

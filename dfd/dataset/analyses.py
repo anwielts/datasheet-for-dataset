@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Generic, Iterable, Literal, Sequence, TypeAlias, TypeVar, cast, Any
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING, Any, Generic, Literal, TypeAlias, TypeVar, cast
 
 from pydantic import BaseModel
 
@@ -17,7 +18,7 @@ else:
 TabularDataType = TypeVar('TabularDataType', bound=DataFrameType)
 allowed_backends = {'auto', 'pandas', 'polars'}
 
-def _format_number(value: float | int | None) -> str:
+def _format_number(value: float | None) -> str:
     """Format a number for markdown output.
     
     Args:
@@ -60,7 +61,7 @@ class TabularStatistics(BaseModel):
         return '\n'.join(lines)
 
     @staticmethod
-    def format_tabular_statistics_to_markdown(statistics: Sequence['TabularStatistics']) -> str:
+    def format_tabular_statistics_to_markdown(statistics: Sequence[TabularStatistics]) -> str:
         """Format a list of TabularStatistics to a markdown string.
 
         Args:
@@ -123,22 +124,21 @@ class TabularDataContext:
             msg = f'Unsupported dataframe type: {type(data)!r}. Only pandas and polars are supported.'
             raise TypeError(msg)
 
-        elif backend == 'pandas':
+        if backend == 'pandas':
             import pandas as pd
             if not isinstance(data, pd.DataFrame):
                 msg = 'Only pandas DataFrame can be analyzed with pandas backend.'
                 raise TypeError(msg)
             return PandasTabularAnalyses(), data
 
-        elif backend == 'polars':
+        if backend == 'polars':
             import polars as pl
             if not isinstance(data, pl.DataFrame):
                 msg = 'Only polars DataFrame can be analyzed with polars backend.'
                 raise TypeError(msg)
             return PolarsTabularAnalyses(), data
 
-        else:
-            raise ValueError(f'Unhandled backend: {backend!r}')
+        raise ValueError(f'Unhandled backend: {backend!r}')
 
     def calculate_tabular_statistics(self, data: DataFrameType) -> list[TabularStatistics]:
         strategy, prepared = self._resolve_strategy(data)
@@ -148,13 +148,13 @@ class TabularDataContext:
 class PandasTabularAnalyses(TabularAnalysesStrategy['pd.DataFrame']):
     """Pandas-based implementation of tabular data analyses."""
 
-    def describe(self, data: 'pd.DataFrame') -> list[TabularStatistics]:
+    def describe(self, data: pd.DataFrame) -> list[TabularStatistics]:
         statistics = data.describe(include='all')
         statistics = statistics.where(statistics.notna(), None)
         return list(self._to_statistics(statistics))
 
-    def _to_statistics(self, statistics_data: 'pd.DataFrame') -> Iterable[TabularStatistics]:
-        import pandas as pd # TODO
+    def _to_statistics(self, statistics_data: pd.DataFrame) -> Iterable[TabularStatistics]:
+        import pandas as pd  # TODO
         for column in statistics_data.columns:
             series = statistics_data[column]
 
@@ -180,7 +180,7 @@ class PandasTabularAnalyses(TabularAnalysesStrategy['pd.DataFrame']):
 
 class PolarsTabularAnalyses(TabularAnalysesStrategy['pl.DataFrame']):
     """Polars-based implementation of tabular data analyses."""
-    def describe(self, data: 'pl.DataFrame') -> list[TabularStatistics]:
+    def describe(self, data: pl.DataFrame) -> list[TabularStatistics]:
         results: list[TabularStatistics] = []
         for column in data.columns:
             series = data[column]
@@ -198,10 +198,10 @@ class PolarsTabularAnalyses(TabularAnalysesStrategy['pl.DataFrame']):
 
             if series.dtype.is_numeric() and count > 0:
                 # We cast to float, otherwhise typechecking makes me crazy
-                std_val = cast(float, non_null.std())
-                mean_val = cast(float, non_null.mean())
-                max_val = cast(float, non_null.max())
-                min_val = cast(float, non_null.min())
+                std_val = cast('float', non_null.std())
+                mean_val = cast('float', non_null.mean())
+                max_val = cast('float', non_null.max())
+                min_val = cast('float', non_null.min())
                 highest = quantile(0.75)
                 middle = quantile(0.5)
                 lowest = quantile(0.25)
