@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Generic, Iterable, Literal, Sequence, TypeAlias, TypeVar, cast
+from typing import TYPE_CHECKING, Generic, Iterable, Literal, Sequence, TypeAlias, TypeVar, cast, Any
+
+from pydantic import BaseModel
 
 if TYPE_CHECKING:
     import pandas as pd
     import polars as pl
-from pydantic import BaseModel
+    DataFrameType: TypeAlias = pd.DataFrame | pl.DataFrame
+else:
+    DataFrameType: TypeAlias = Any
 
-DataFrameType: TypeAlias = pd.DataFrame | pl.DataFrame
 TabularDataType = TypeVar('TabularDataType', bound=DataFrameType)
 allowed_backends = {'auto', 'pandas', 'polars'}
 
@@ -142,13 +145,16 @@ class TabularDataContext:
         return strategy.describe(prepared)
 
 
-class PandasTabularAnalyses(TabularAnalysesStrategy[pd.DataFrame]):
-    def describe(self, data: pd.DataFrame) -> list[TabularStatistics]:
+class PandasTabularAnalyses(TabularAnalysesStrategy['pd.DataFrame']):
+    """Pandas-based implementation of tabular data analyses."""
+
+    def describe(self, data: 'pd.DataFrame') -> list[TabularStatistics]:
         statistics = data.describe(include='all')
         statistics = statistics.where(statistics.notna(), None)
         return list(self._to_statistics(statistics))
 
-    def _to_statistics(self, statistics_data: pd.DataFrame) -> Iterable[TabularStatistics]:
+    def _to_statistics(self, statistics_data: 'pd.DataFrame') -> Iterable[TabularStatistics]:
+        import pandas as pd # TODO
         for column in statistics_data.columns:
             series = statistics_data[column]
 
@@ -172,8 +178,9 @@ class PandasTabularAnalyses(TabularAnalysesStrategy[pd.DataFrame]):
                 std_val=pick('std')
             )
 
-class PolarsTabularAnalyses(TabularAnalysesStrategy[pl.DataFrame]):
-    def describe(self, data: pl.DataFrame) -> list[TabularStatistics]:
+class PolarsTabularAnalyses(TabularAnalysesStrategy['pl.DataFrame']):
+    """Polars-based implementation of tabular data analyses."""
+    def describe(self, data: 'pl.DataFrame') -> list[TabularStatistics]:
         results: list[TabularStatistics] = []
         for column in data.columns:
             series = data[column]
@@ -183,7 +190,7 @@ class PolarsTabularAnalyses(TabularAnalysesStrategy[pl.DataFrame]):
             def quantile(q: float) -> float | None:
                 if count == 0:
                     return None
-                q_value = non_null.quantile(q, interpolation='linear')
+                q_value = non_null.quantile(q, interpolation='nearest')
 
                 if q_value is None:
                     return None

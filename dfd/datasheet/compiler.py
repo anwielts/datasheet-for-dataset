@@ -39,7 +39,7 @@ class DatasheetCompiler:
     def compile_from_template(
         self,
         template_path: str,
-        dataset: pd.DataFrame | pl.DataFrame,
+        dataset: 'pd.DataFrame | pl.DataFrame',
         output_path: str,
         dataset_name: str | None = None,
         version: str = '1.0'
@@ -75,7 +75,7 @@ class DatasheetCompiler:
 
     def compile_from_scratch(
         self,
-        dataset: pd.DataFrame | pl.DataFrame,
+        dataset: 'pd.DataFrame | pl.DataFrame',
         output_path: str,
         dataset_name: str,
         manual_content: dict[str, str] | None = None,
@@ -120,7 +120,7 @@ class DatasheetCompiler:
 
     def create_datasheet_with_analysis(
         self,
-        dataset: pd.DataFrame | pl.DataFrame,
+        dataset: 'pd.DataFrame | pl.DataFrame',
         dataset_name: str,
         output_path: str,
         template_path: str | None = None
@@ -170,7 +170,7 @@ class DatasheetCompiler:
     def _add_automated_analysis(
         self,
         structure: DatasheetStructure,
-        dataset: pd.DataFrame | pl.DataFrame
+        dataset: 'pd.DataFrame | pl.DataFrame'
     ) -> None:
         """Add automated analysis cards to the datasheet structure.
         
@@ -178,14 +178,8 @@ class DatasheetCompiler:
             structure: The datasheet structure to enhance
             dataset: The dataset to analyze
         """
-        if isinstance(dataset, pd.DataFrame):
-            from dfd.dataset.analyses import PandasTabularAnalyses
-            strategy = PandasTabularAnalyses()
-        else:
-            from dfd.dataset.analyses import PolarsTabularAnalyses
-            strategy = PolarsTabularAnalyses()
 
-        analysis_context = TabularDataContext(strategy)
+        analysis_context = TabularDataContext(strategy='auto')
         stats_list = analysis_context.calculate_tabular_statistics(dataset)
         summary_stat = self._select_summary_stat(stats_list)
 
@@ -246,7 +240,7 @@ class DatasheetCompiler:
     def _format_statistics_description( # TODO: Use formatting function of class
         self,
         stats: TabularStatistics | None,
-        dataset: pd.DataFrame | pl.DataFrame,
+        dataset: 'pd.DataFrame | pl.DataFrame',
         statistics: list[TabularStatistics]
     ) -> str:
         """Format a markdown description of dataset statistics.
@@ -260,19 +254,13 @@ class DatasheetCompiler:
             Formatted markdown string summarizing dataset statistics
         """
         rows, cols = dataset.shape
-        dtype_counts = self._collect_dtype_counts(dataset)
         numeric_columns = sum(1 for stat in statistics if stat.mean_val is not None)
 
         lines = [
             '**Dataset Overview:**',
             f'- Total rows: {rows:,}',
             f'- Total columns: {cols}',
-            f'- Detected column types: {len(dtype_counts)} unique'
         ]
-        if dtype_counts:
-            lines.append('- Column type breakdown:')
-            for dtype, count in dtype_counts.items():
-                lines.append(f'  - {dtype}: {count}')
 
         lines.extend(['', '**Statistical Summary:**', f'- Columns with numeric summary: {numeric_columns}'])
 
@@ -295,7 +283,7 @@ class DatasheetCompiler:
 
         return '\n'.join(lines)
 
-    def _format_quality_assessment(self, dataset: pd.DataFrame | pl.DataFrame) -> str: # TODO: Use formatting function of class
+    def _format_quality_assessment(self, dataset: 'pd.DataFrame | pl.DataFrame') -> str: # TODO: Use formatting function of class
         """Format a markdown description of dataset quality.
 
         Args:
@@ -304,7 +292,7 @@ class DatasheetCompiler:
         Returns:
             Formatted markdown string summarizing dataset quality
         """
-        if isinstance(dataset, pl.DataFrame):
+        """if isinstance(dataset, pl.DataFrame):
             pandas_df = dataset.to_pandas()
         else:
             pandas_df = dataset
@@ -334,28 +322,8 @@ class DatasheetCompiler:
         else:
             lines.append('- No columns detected.')
 
-        return '\n'.join(lines)
-
-    def _collect_dtype_counts( # TODO: Use formatting function of class
-        self,
-        dataset: pd.DataFrame | pl.DataFrame
-    ) -> dict[str, int]:
-        """Collect counts of each data type in the dataset.
-
-        Args:
-            dataset: The dataset being analyzed
-
-        Returns:
-            Dictionary mapping data type names to their counts
-        """
-        if isinstance(dataset, pd.DataFrame):
-            series = dataset.dtypes.astype(str).value_counts()
-            return {str(dtype): int(count) for dtype, count in series.items()}
-        summary: dict[str, int] = {}
-        for dtype in dataset.schema.values():
-            key = str(dtype)
-            summary[key] = summary.get(key, 0) + 1
-        return summary
+        return '\n'.join(lines)"""
+        return 'Automated data quality assessment will be available in a future release.'
 
     def _fill_automated_placeholders(self, structure: DatasheetStructure) -> None:
         """Fill in placeholder cards for pending automated analyses.

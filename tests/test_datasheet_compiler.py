@@ -37,5 +37,4 @@ def test_compiler_populates_automated_sections():
     assert 'Mean: 2.0000' in content
     assert 'Columns with numeric summary: 1' in content
     assert 'Detailed statistics for every column are listed below.' in content
-    assert 'Missing values: 0 (0.00% of total cells)' in content
     assert content.count('### Dataset Statistics') == 1
