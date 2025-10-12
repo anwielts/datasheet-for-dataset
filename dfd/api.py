@@ -18,11 +18,11 @@ SUPPORTED_DATA_EXTENSIONS = {'.csv', '.tsv', '.parquet', '.json'}
 
 def generate_template(output_path: str | None = None) -> str:
     """Generate an empty datasheet template and return its path.
-    
+
     Args:
         output_path: Optional path to save the generated template. Defaults to 'datasheet_template.md
                      in the current directory.
-                     
+
     Returns:
         The absolute path to the generated template file.
     """
@@ -35,7 +35,7 @@ def generate_template(output_path: str | None = None) -> str:
 
 def load_tabular_dataset(path: str, backend: DatasetBackend = 'auto') -> pd.DataFrame | pl.DataFrame:
     """Load a dataset into a pandas or polars DataFrame.
-    
+
     Args:
         path: The file path to the dataset.
         backend: The backend to use for loading the dataset.
@@ -80,7 +80,7 @@ def load_tabular_dataset(path: str, backend: DatasetBackend = 'auto') -> pd.Data
     raise ValueError(msg)
 
 
-def build_datasheet(
+def build_datasheet( # noqa: PLR0913
     dataset_path: str,
     output_path: str,
     template_path: str | None = None,
@@ -89,7 +89,7 @@ def build_datasheet(
     backend: DatasetBackend = 'auto'
 ) -> str:
     """Compile a datasheet for a tabular dataset.
-    
+
     Args:
         dataset_path: Path to the dataset file.
         output_path: Path to save the compiled datasheet.
@@ -97,7 +97,7 @@ def build_datasheet(
         dataset_name: Optional name for the dataset. If not provided, inferred from the dataset file name.
         version: Version of the datasheet format to use.
         backend: Backend to use for loading the dataset.
-    
+
     Returns:
         The path to the compiled datasheet.
     """

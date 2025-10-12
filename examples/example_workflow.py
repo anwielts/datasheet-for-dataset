@@ -10,6 +10,7 @@ This example demonstrates the complete user workflow:
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from dfd.datasheet.compiler import DatasheetCompiler
@@ -89,20 +90,6 @@ def demonstrate_complete_workflow():
     print('  - Manual documentation + automated analysis')
     print()
 
-    # Step 6: Demonstrate CLI usage
-    print('Step 6: CLI Usage Examples')
-    print('-' * 30)
-    print('To generate a template:')
-    print('  python -m dfd.cli generate-template --output my_template.md')
-    print()
-    print('To create datasheet from filled template:')
-    print('  python -m dfd.cli create-datasheet --template filled_template.md --data dataset.csv --output final_datasheet.md')
-    print()
-
-    print('=' * 60)
-    print('WORKFLOW COMPLETED SUCCESSFULLY!')
-    print('=' * 60)
-
     return {
         'template_path': template_path,
         'filled_template_path': filled_template_path,
@@ -113,7 +100,7 @@ def demonstrate_complete_workflow():
 
 def create_sample_filled_template() -> str:
     """Create a sample filled template with realistic content.
-    
+
     Returns:
         Filled template content as string
     """
@@ -304,39 +291,41 @@ The dataset may be updated if needed for better demonstration purposes.
 
 def create_sample_dataset() -> pd.DataFrame:
     """Create a sample dataset for demonstration.
-    
+
     Returns:
         Sample pandas DataFrame
     """
-    import numpy as np
-
     # Set random seed for reproducibility
-    np.random.seed(42)
+    rng = np.random.default_rng(42)
 
     n_samples = 1000
 
     # Generate synthetic customer data
     data = {
         'customer_id': range(1, n_samples + 1),
-        'age': np.random.normal(40, 12, n_samples).astype(int).clip(18, 80),
-        'gender': np.random.choice(['Male', 'Female', 'Other'], n_samples, p=[0.45, 0.45, 0.1]),
-        'income': np.random.lognormal(10.5, 0.5, n_samples).astype(int),
-        'purchase_amount': np.random.exponential(100, n_samples).round(2),
-        'satisfaction_score': np.random.normal(7.5, 1.5, n_samples).clip(1, 10).round(1),
-        'churn': np.random.choice([0, 1], n_samples, p=[0.8, 0.2])
+        'age': rng.normal(40, 12, n_samples).astype(int).clip(18, 80),
+        'gender': rng.choice(['Male', 'Female', 'Other'], n_samples, p=[0.45, 0.45, 0.1]),
+        'income': rng.lognormal(10.5, 0.5, n_samples).astype(int),
+        'purchase_amount': rng.exponential(100, n_samples).round(2),
+        'satisfaction_score': rng.normal(7.5, 1.5, n_samples).clip(1, 10).round(1),
+        'churn': rng.choice([0, 1], n_samples, p=[0.8, 0.2])
     }
 
     df = pd.DataFrame(data)
 
+    # Use numpy's Generator for reproducibility and better random control
+    rng = np.random.default_rng(42)
+
     # Add some correlations to make it more realistic
     # Higher income tends to have higher satisfaction
     high_income_mask = df['income'] > df['income'].quantile(0.75)
-    df.loc[high_income_mask, 'satisfaction_score'] += np.random.normal(0.5, 0.3, high_income_mask.sum())
+    df.loc[high_income_mask, 'satisfaction_score'] += rng.normal(0.5, 0.3, high_income_mask.sum())
     df['satisfaction_score'] = df['satisfaction_score'].clip(1, 10).round(1)
 
     # Lower satisfaction increases churn probability
-    low_satisfaction_mask = df['satisfaction_score'] < 5
-    df.loc[low_satisfaction_mask, 'churn'] = np.random.choice([0, 1], low_satisfaction_mask.sum(), p=[0.3, 0.7])
+    low_satisfaction_value = 5
+    low_satisfaction_mask = df['satisfaction_score'] < low_satisfaction_value
+    df.loc[low_satisfaction_mask, 'churn'] = rng.choice([0, 1], low_satisfaction_mask.sum(), p=[0.3, 0.7])
 
     return df
 
@@ -395,6 +384,7 @@ def demonstrate_programmatic_usage():
         output_path='integrated_datasheet.md'
     )
 
+    print('Name of datasheet:', datasheet_obj.dataset_name)
     print('Created Datasheet object with analysis integration')
     print('Datasheet contains automated statistical analysis')
 

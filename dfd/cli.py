@@ -49,10 +49,10 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     """Main entry point for the CLI.
-    
+
     Args:
-        List of command-line arguments. If None, uses
-    
+        argv: List of command-line arguments. If None, uses sys.argv.
+
     Returns:
         Exit code (0 for success, 1 for failure).
     """
@@ -91,7 +91,7 @@ def main(argv: list[str] | None = None) -> int:
         print('✅ Datasheet created')
         print(f'📄 Saved to: {Path(result).absolute()}')
         if not args.template:
-            print('ℹ️ Generated using automated analysis only (no manual template provided).')
+            print('ℹ️ Generated using automated analysis only (no manual template provided).') # noqa: RUF001
         return 0
 
     parser.print_help()

@@ -1,6 +1,6 @@
 """Datasheet compilation system for combining manual and automated content."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -16,10 +16,10 @@ from .structures import CardType, DatasheetInformationCard, DatasheetSection, Da
 
 def _format_number(value: float | None) -> str:
     """Format a number for display in the datasheet.
-    
+
     Args:
         value: The number to format
-    
+
     Returns:
         Formatted string representation of the number
     """
@@ -45,14 +45,14 @@ class DatasheetCompiler:
         version: str = '1.0'
     ) -> str:
         """Compile a complete datasheet from a filled template and dataset.
-        
+
         Args:
             template_path: Path to the filled markdown template
             dataset: The tabular dataset to analyze
             output_path: Path where to save the compiled datasheet
             dataset_name: Name of the dataset (optional)
             version: Version of the datasheet
-            
+
         Returns:
             Path to the compiled datasheet
         """
@@ -63,7 +63,7 @@ class DatasheetCompiler:
         if dataset_name:
             structure.title = f'Datasheet for {dataset_name}'
         structure.version = version
-        structure.date_created = datetime.now().strftime('%Y-%m-%d')
+        structure.date_created = datetime.now(timezone.utc).strftime('%Y-%m-%d')
 
         # Add automated analysis cards
         self._add_automated_analysis(structure, dataset)
@@ -82,14 +82,14 @@ class DatasheetCompiler:
         version: str = '1.0'
     ) -> str:
         """Compile a datasheet from scratch with minimal manual input.
-        
+
         Args:
             dataset: The tabular dataset to analyze
             output_path: Path where to save the compiled datasheet
             dataset_name: Name of the dataset
             manual_content: Optional dictionary of manual content by section
             version: Version of the datasheet
-            
+
         Returns:
             Path to the compiled datasheet
         """
@@ -97,7 +97,7 @@ class DatasheetCompiler:
         structure = DatasheetStructure(
             title=f'Datasheet for {dataset_name}',
             version=version,
-            date_created=datetime.now().strftime('%Y-%m-%d')
+            date_created=datetime.now(timezone.utc).strftime('%Y-%m-%d')
         )
 
         # Add template cards with manual content if provided
@@ -126,16 +126,17 @@ class DatasheetCompiler:
         template_path: str | None = None
     ) -> Datasheet:
         """Create a Datasheet object with integrated analysis.
-        
+
         Args:
             dataset: The tabular dataset to analyze
             dataset_name: Name of the dataset
             output_path: Path where to save the datasheet
             template_path: Optional path to filled template
-            
+
         Returns:
             Configured Datasheet object
         """
+        print(f'Print because unused method: {output_path}')
         # Create datasheet structure
         if template_path:
             structure = self.template_manager.load_filled_template(template_path)
@@ -144,26 +145,19 @@ class DatasheetCompiler:
 
         # Update metadata
         structure.title = f'Datasheet for {dataset_name}'
-        structure.date_created = datetime.now().strftime('%Y-%m-%d')
+        structure.date_created = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')
 
+        '''
         # Convert structure to information cards for Datasheet
-        info_cards = []
-        for card in structure.cards:
-            if card.card_type != CardType.AUTOMATED:
-                info_cards.append(card)
-
-        # Create Datasheet object with correct parameters
-        if isinstance(dataset, pd.DataFrame):
-            from dfd.dataset.analyses import PandasTabularAnalyses
-            strategy = PandasTabularAnalyses()
-        else:
-            from dfd.dataset.analyses import PolarsTabularAnalyses
-            strategy = PolarsTabularAnalyses()
-
+        info_cards = [card for card in structure.cards if card.card_type != CardType.AUTOMATED]
+        '''
         datasheet = Datasheet(
             data=dataset,
             analysis=None
         )
+
+        # TODO: Use correctly
+        datasheet.store_datasheet()
 
         return datasheet
 
@@ -173,7 +167,7 @@ class DatasheetCompiler:
         dataset: 'pd.DataFrame | pl.DataFrame'
     ) -> None:
         """Add automated analysis cards to the datasheet structure.
-        
+
         Args:
             structure: The datasheet structure to enhance
             dataset: The dataset to analyze
@@ -227,7 +221,7 @@ class DatasheetCompiler:
 
         Args:
             statistics: List of TabularStatistics objects
-        
+
         Returns:
             A representative TabularStatistics object or None if none found
         """
@@ -282,7 +276,7 @@ class DatasheetCompiler:
 
         return '\n'.join(lines)
 
-    def _format_quality_assessment(self, dataset: 'pd.DataFrame | pl.DataFrame') -> str: # TODO: Use formatting function of class
+    def _format_quality_assessment(self, dataset: 'pd.DataFrame | pl.DataFrame' ) -> str: # TODO: Use formatting function of class
         """Format a markdown description of dataset quality.
 
         Args:
@@ -291,7 +285,8 @@ class DatasheetCompiler:
         Returns:
             Formatted markdown string summarizing dataset quality
         """
-        '''if isinstance(dataset, pl.DataFrame):
+        '''
+        if isinstance(dataset, pl.DataFrame):
             pandas_df = dataset.to_pandas()
         else:
             pandas_df = dataset
@@ -322,7 +317,7 @@ class DatasheetCompiler:
             lines.append('- No columns detected.')
 
         return '\n'.join(lines)'''
-        return 'Automated data quality assessment will be available in a future release.'
+        return f'Automated data quality assessment will be available in a future release.{dataset.shape}'
 
     def _fill_automated_placeholders(self, structure: DatasheetStructure) -> None:
         """Fill in placeholder cards for pending automated analyses.

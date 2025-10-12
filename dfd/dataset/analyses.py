@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Generic, Literal, TypeAlias, TypeVar, cast
 
 from pydantic import BaseModel
@@ -12,6 +11,7 @@ if TYPE_CHECKING:
     import pandas as pd
     import polars as pl
     DataFrameType: TypeAlias = pd.DataFrame | pl.DataFrame
+    from collections.abc import Iterable, Sequence
 else:
     DataFrameType: TypeAlias = Any
 
@@ -20,7 +20,7 @@ allowed_backends = {'auto', 'pandas', 'polars'}
 
 def _format_number(value: float | None) -> str:
     """Format a number for markdown output.
-    
+
     Args:
         value: The number to format.
 
@@ -138,9 +138,18 @@ class TabularDataContext:
                 raise TypeError(msg)
             return PolarsTabularAnalyses(), data
 
-        raise ValueError(f'Unhandled backend: {backend!r}')
+        msg = f'Unhandled backend: {backend!r}'
+        raise ValueError(msg)
 
     def calculate_tabular_statistics(self, data: DataFrameType) -> list[TabularStatistics]:
+        """Calculate tabular statistics for the provided data.
+
+        Args:
+            data: The tabular data to analyze.
+
+        Returns:
+            A list of TabularStatistics instances.
+        """
         strategy, prepared = self._resolve_strategy(data)
         return strategy.describe(prepared)
 
@@ -149,16 +158,33 @@ class PandasTabularAnalyses(TabularAnalysesStrategy['pd.DataFrame']):
     """Pandas-based implementation of tabular data analyses."""
 
     def describe(self, data: pd.DataFrame) -> list[TabularStatistics]:
+        """Return statistics for the given pandas DataFrame.
+
+        Args:
+            data: The pandas DataFrame to analyze.
+
+        Returns:
+            A list of TabularStatistics instances.
+        """
         statistics = data.describe(include='all')
         statistics = statistics.where(statistics.notna(), None)
         return list(self._to_statistics(statistics))
 
     def _to_statistics(self, statistics_data: pd.DataFrame) -> Iterable[TabularStatistics]:
-        import pandas as pd  # TODO
+        """Convert pandas describe DataFrame to TabularStatistics instances.
+
+        Args:
+            statistics_data: The DataFrame returned by pandas describe().
+
+        Returns:
+            An iterable of TabularStatistics instances.
+        """
+        import pandas as pd
+        # TODO: Move each Analyses to own file to avoid this import
         for column in statistics_data.columns:
             series = statistics_data[column]
 
-            def pick(label: str) -> float | int | None:
+            def pick(label: str, series: pd.Series = series) -> float | int | None:
                 if label not in series.index:
                     return None
                 value = series.loc[label]
@@ -180,14 +206,24 @@ class PandasTabularAnalyses(TabularAnalysesStrategy['pd.DataFrame']):
 
 class PolarsTabularAnalyses(TabularAnalysesStrategy['pl.DataFrame']):
     """Polars-based implementation of tabular data analyses."""
+
     def describe(self, data: pl.DataFrame) -> list[TabularStatistics]:
+        """Return statistics for the given polars DataFrame.
+
+        Args:
+            data: The polars DataFrame to analyze.
+
+        Returns:
+            A list of TabularStatistics instances.
+        """
+        # TODO: import polars as pl Move each Analyses to own file to avoid this import
         results: list[TabularStatistics] = []
         for column in data.columns:
             series = data[column]
             non_null = series.drop_nulls()
-            count = float(non_null.len())
+            count = non_null.len()
 
-            def quantile(q: float) -> float | None:
+            def quantile(q: float, non_null: pl.Series = non_null, count: int = count) -> float | None:
                 if count == 0:
                     return None
                 q_value = non_null.quantile(q, interpolation='nearest')

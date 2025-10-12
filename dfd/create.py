@@ -8,8 +8,9 @@ if TYPE_CHECKING:
     import pandas as pd
     import polars as pl
 
+    from dfd.dataset.analyses import TabularAnalysesStrategy
+
 from dfd.dataset import TabularDataContext
-from dfd.dataset.analyses import TabularAnalysesStrategy
 
 
 class Datasheet:
