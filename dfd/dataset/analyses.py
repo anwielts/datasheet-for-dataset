@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Generic, Literal, TypeAlias, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, Literal, TypeAlias, TypeVar
 
 from pydantic import BaseModel
 
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     import pandas as pd
     import polars as pl
     DataFrameType: TypeAlias = pd.DataFrame | pl.DataFrame
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Sequence
 else:
     DataFrameType: TypeAlias = Any
 
@@ -117,9 +117,11 @@ class TabularDataContext:
         if backend == 'auto':
             import pandas as pd
             if isinstance(data, pd.DataFrame):
+                from dfd.dataset.pandas_strategy import PandasTabularAnalyses
                 return PandasTabularAnalyses(), data
             import polars as pl
             if isinstance(data, pl.DataFrame):
+                from dfd.dataset.polars_strategy import PolarsTabularAnalyses
                 return PolarsTabularAnalyses(), data
             msg = f'Unsupported dataframe type: {type(data)!r}. Only pandas and polars are supported.'
             raise TypeError(msg)
@@ -129,6 +131,7 @@ class TabularDataContext:
             if not isinstance(data, pd.DataFrame):
                 msg = 'Only pandas DataFrame can be analyzed with pandas backend.'
                 raise TypeError(msg)
+            from dfd.dataset.pandas_strategy import PandasTabularAnalyses
             return PandasTabularAnalyses(), data
 
         if backend == 'polars':
@@ -136,6 +139,7 @@ class TabularDataContext:
             if not isinstance(data, pl.DataFrame):
                 msg = 'Only polars DataFrame can be analyzed with polars backend.'
                 raise TypeError(msg)
+            from dfd.dataset.polars_strategy import PolarsTabularAnalyses
             return PolarsTabularAnalyses(), data
 
         msg = f'Unhandled backend: {backend!r}'
@@ -153,115 +157,3 @@ class TabularDataContext:
         strategy, prepared = self._resolve_strategy(data)
         return strategy.describe(prepared)
 
-
-class PandasTabularAnalyses(TabularAnalysesStrategy['pd.DataFrame']):
-    """Pandas-based implementation of tabular data analyses."""
-
-    def describe(self, data: pd.DataFrame) -> list[TabularStatistics]:
-        """Return statistics for the given pandas DataFrame.
-
-        Args:
-            data: The pandas DataFrame to analyze.
-
-        Returns:
-            A list of TabularStatistics instances.
-        """
-        statistics = data.describe(include='all')
-        statistics = statistics.where(statistics.notna(), None)
-        return list(self._to_statistics(statistics))
-
-    def _to_statistics(self, statistics_data: pd.DataFrame) -> Iterable[TabularStatistics]:
-        """Convert pandas describe DataFrame to TabularStatistics instances.
-
-        Args:
-            statistics_data: The DataFrame returned by pandas describe().
-
-        Returns:
-            An iterable of TabularStatistics instances.
-        """
-        import pandas as pd
-        # TODO: Move each Analyses to own file to avoid this import
-        for column in statistics_data.columns:
-            series = statistics_data[column]
-
-            def pick(label: str, series: pd.Series = series) -> float | int | None:
-                if label not in series.index:
-                    return None
-                value = series.loc[label]
-                if pd.isna(value):
-                    return None
-                return value
-
-            yield TabularStatistics(
-                column_name=column,
-                count=pick('count'),
-                highest_quantile=pick('75%'),
-                middle_quantile=pick('50%'),
-                lowest_quantile=pick('25%'),
-                max_val=pick('max'),
-                min_val=pick('min'),
-                mean_val=pick('mean'),
-                std_val=pick('std')
-            )
-
-class PolarsTabularAnalyses(TabularAnalysesStrategy['pl.DataFrame']):
-    """Polars-based implementation of tabular data analyses."""
-
-    def describe(self, data: pl.DataFrame) -> list[TabularStatistics]:
-        """Return statistics for the given polars DataFrame.
-
-        Args:
-            data: The polars DataFrame to analyze.
-
-        Returns:
-            A list of TabularStatistics instances.
-        """
-        # TODO: import polars as pl Move each Analyses to own file to avoid this import
-        results: list[TabularStatistics] = []
-        for column in data.columns:
-            series = data[column]
-            non_null = series.drop_nulls()
-            count = non_null.len()
-
-            def quantile(q: float, non_null: pl.Series = non_null, count: int = count) -> float | None:
-                if count == 0:
-                    return None
-                q_value = non_null.quantile(q, interpolation='nearest')
-
-                if q_value is None:
-                    return None
-                return float(q_value)
-
-            if series.dtype.is_numeric() and count > 0:
-                # We cast to float, otherwhise typechecking makes me crazy
-                std_val = cast('float', non_null.std())
-                mean_val = cast('float', non_null.mean())
-                max_val = cast('float', non_null.max())
-                min_val = cast('float', non_null.min())
-                highest = quantile(0.75)
-                middle = quantile(0.5)
-                lowest = quantile(0.25)
-            else:
-                mean_val = None
-                std_val = None
-                max_val = None
-                min_val = None
-                highest = None
-                middle = None
-                lowest = None
-
-            results.append(
-                TabularStatistics(
-                    column_name=column,
-                    count=count,
-                    highest_quantile=highest,
-                    middle_quantile=middle,
-                    lowest_quantile=lowest,
-                    max_val=max_val,
-                    min_val=min_val,
-                    mean_val=mean_val,
-                    std_val=std_val,
-                )
-            )
-
-        return results

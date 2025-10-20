@@ -57,7 +57,7 @@ def load_tabular_dataset(path: str, backend: DatasetBackend = 'auto') -> pd.Data
         raise ValueError(msg)
 
     if backend in {'polars', 'auto'}:
-        import polars as pl
+        import polars as pl # This is maymbe redundant
         if extension in {'.csv', '.tsv'}:
             separator = '\t' if extension == '.tsv' else ','
             return pl.read_csv(file_path, separator=separator)

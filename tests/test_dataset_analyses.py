@@ -1,7 +1,9 @@
 import pandas as pd
 import polars as pl
 
-from dfd.dataset.analyses import PandasTabularAnalyses, PolarsTabularAnalyses, TabularDataContext, TabularStatistics
+from dfd.dataset.analyses import TabularDataContext, TabularStatistics
+from dfd.dataset.pandas_strategy import PandasTabularAnalyses
+from dfd.dataset.polars_strategy import PolarsTabularAnalyses
 
 # create test data
 d = {'a': [1, 2], 'b': ['A', 'B']}
