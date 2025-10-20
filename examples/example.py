@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from dfd import Datasheet, build_datasheet, generate_template
+from dfd import Datasheet
 
 
 def analyze_dataframe_in_python() -> None:
@@ -15,9 +15,7 @@ def analyze_dataframe_in_python() -> None:
     )
 
     sheet = Datasheet(data=df)
-    sheet.create_datasheet()
-
-    for stat in sheet.data_statistics:
+    for stat in sheet.analyse():
         print(f'{stat.column_name}: mean={stat.mean_val}, std={stat.std_val}')
 
 
@@ -35,12 +33,15 @@ def build_markdown_datasheet() -> None:
     )
     df.to_csv(dataset_path, index=False)
 
-    template_path = generate_template('examples/data/datasheet_template.md')
-    output_path = build_datasheet(
-        dataset_path=str(dataset_path),
+    template_path = Datasheet.generate_template('examples/data/datasheet_template.md')
+    datasheet = Datasheet.from_path(
+        str(dataset_path),
+        backend='auto',
+        dataset_name='Sample Customers',
+    )
+    output_path = datasheet.to_markdown(
         output_path='examples/data/datasheet.md',
         template_path=None,
-        dataset_name='Sample Customers',
     )
 
     print(f'Template saved to {template_path}')

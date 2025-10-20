@@ -13,6 +13,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from dfd import Datasheet
 from dfd.datasheet.compiler import DatasheetCompiler
 
 # Import our datasheet generation modules
@@ -378,15 +379,13 @@ def demonstrate_programmatic_usage():
     print('\nMethod 3: Integration with Datasheet class')
     print('-' * 30)
 
-    datasheet_obj = compiler.create_datasheet_with_analysis(
-        dataset=sample_data,
-        dataset_name='Integration Example',
-        output_path='integrated_datasheet.md'
-    )
+    datasheet_obj = Datasheet(data=sample_data, dataset_name='Integration Example')
+    datasheet_obj.analyse()
+    integrated_path = datasheet_obj.to_markdown('integrated_datasheet.md')
 
     print('Name of datasheet:', datasheet_obj.dataset_name)
     print('Created Datasheet object with analysis integration')
-    print('Datasheet contains automated statistical analysis')
+    print(f'Datasheet stored at: {integrated_path}')
 
 
 if __name__ == '__main__':

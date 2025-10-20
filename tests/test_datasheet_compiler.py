@@ -3,6 +3,7 @@ from tempfile import TemporaryDirectory
 
 import pandas as pd
 
+from dfd.create import Datasheet
 from dfd.datasheet.compiler import DatasheetCompiler
 from dfd.datasheet.manager import TemplateManager
 
@@ -22,12 +23,15 @@ def test_compiler_populates_automated_sections():
         manager.save_structure_as_template(structure, template_file)
 
         compiler = DatasheetCompiler()
+        datasheet = Datasheet(data=df, dataset_name='Test Dataset')
+        statistics = datasheet.ensure_statistics()
         compiler.compile_from_template(
             template_path=str(template_file),
             dataset=df,
             output_path=str(output_file),
             dataset_name='Test Dataset',
-            version='0.1'
+            version='0.1',
+            statistics=statistics,
         )
 
         content = output_file.read_text(encoding='utf-8')

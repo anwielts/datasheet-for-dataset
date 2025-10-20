@@ -56,23 +56,26 @@ Use the programmatic API to analyse a dataframe or to build a datasheet directly
 ```python
 import pandas as pd
 
-from dfd import Datasheet, build_datasheet
+from dfd import Datasheet
 
 df = pd.read_csv("data/customers.csv")
 
 # access automated statistics in-memory
 sheet = Datasheet(data=df)
-sheet.create_datasheet()
-for stat in sheet.data_statistics:
+for stat in sheet.analyse():
     print(stat.column_name, stat.mean_val)
 
-# write a markdown datasheet using automated analysis only
-build_datasheet(
-    dataset_path="data/customers.csv",
+# generate a template and export a full datasheet
+Datasheet.generate_template("docs/datasheet_template.md")
+compiled = Datasheet.from_path(
+    "data/customers.csv",
+    backend="auto",
+    dataset_name="Customer Churn",
+)
+compiled.to_markdown(
     output_path="docs/auto_datasheet.md",
     template_path=None,
-    dataset_name="Customer Churn",
-    backend="auto",
+    version="1.0",
 )
 ```
 

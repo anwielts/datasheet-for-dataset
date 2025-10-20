@@ -6,7 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from dfd.api import DatasetBackend, build_datasheet, generate_template
+from dfd.create import Datasheet, DatasetBackend
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -61,7 +61,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == 'template':
         try:
-            output_file = generate_template(args.output)
+            output_file = Datasheet.generate_template(args.output)
         except (OSError, ValueError) as exc:
             print(f'❌ Failed to generate template: {exc}')
             return 1
@@ -76,13 +76,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == 'build':
         backend: DatasetBackend = args.backend
         try:
-            result = build_datasheet(
-                dataset_path=args.data,
+            datasheet = Datasheet.from_path(
+                args.data,
+                backend=backend,
+                dataset_name=args.name,
+                analysis=backend,
+            )
+            result = datasheet.to_markdown(
                 output_path=args.output,
                 template_path=args.template,
-                dataset_name=args.name,
                 version=args.version,
-                backend=backend
             )
         except (FileNotFoundError, ValueError, RuntimeError) as exc:
             print(f'❌ Failed to build datasheet: {exc}')

@@ -1,40 +1,56 @@
 """Datasheet compilation system for combining manual and automated content."""
 
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    import pandas as pd
-    import polars as pl
-
-from dfd.create import Datasheet
 from dfd.dataset.analyses import TabularDataContext, TabularStatistics
 
 from .manager import TemplateManager
 from .structures import CardType, DatasheetInformationCard, DatasheetSection, DatasheetStructure
 
-
-def _format_number(value: float | None) -> str:
-    """Format a number for display in the datasheet.
-
-    Args:
-        value: The number to format
-
-    Returns:
-        Formatted string representation of the number
-    """
-    if value is None:
-        return 'N/A'
-    if isinstance(value, float):
-        return f'{value:.4f}'
-    return f'{value}'
+if TYPE_CHECKING:
+    import pandas as pd
+    import polars as pl
 
 
 class DatasheetCompiler:
     """Compiles complete datasheets by combining manual content with automated analysis."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.template_manager = TemplateManager()
+
+    def compile(  # noqa: PLR0913
+        self,
+        *,
+        dataset: 'pd.DataFrame | pl.DataFrame',
+        statistics: list[TabularStatistics],
+        output_path: str,
+        dataset_name: str,
+        version: str = '1.0',
+        template_path: str | None = None,
+        manual_content: dict[str, str] | None = None,
+    ) -> str:
+        """Compile a datasheet and write it to disk."""
+        if template_path:
+            structure = self.template_manager.load_filled_template(template_path)
+        else:
+            structure = self.template_manager.create_datasheet_structure()
+            if manual_content:
+                for card in structure.cards:
+                    key = self._generate_content_key(card)
+                    if key in manual_content:
+                        card.text = manual_content[key]
+
+        structure.title = f'Datasheet for {dataset_name}'
+        structure.version = version
+        structure.date_created = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+
+        self._add_automated_analysis(structure, dataset, statistics)
+
+        self.template_manager.save_structure_as_template(structure, output_path)
+        return output_path
 
     def compile_from_template(
         self,
@@ -42,36 +58,20 @@ class DatasheetCompiler:
         dataset: 'pd.DataFrame | pl.DataFrame',
         output_path: str,
         dataset_name: str | None = None,
-        version: str = '1.0'
+        version: str = '1.0',
+        statistics: list[TabularStatistics] | None = None,
     ) -> str:
-        """Compile a complete datasheet from a filled template and dataset.
-
-        Args:
-            template_path: Path to the filled markdown template
-            dataset: The tabular dataset to analyze
-            output_path: Path where to save the compiled datasheet
-            dataset_name: Name of the dataset (optional)
-            version: Version of the datasheet
-
-        Returns:
-            Path to the compiled datasheet
-        """
-        # Load the filled template
-        structure = self.template_manager.load_filled_template(template_path)
-
-        # Update metadata
-        if dataset_name:
-            structure.title = f'Datasheet for {dataset_name}'
-        structure.version = version
-        structure.date_created = datetime.now(timezone.utc).strftime('%Y-%m-%d')
-
-        # Add automated analysis cards
-        self._add_automated_analysis(structure, dataset)
-
-        # Generate and save the compiled datasheet
-        self.template_manager.save_structure_as_template(structure, output_path)
-
-        return output_path
+        """Compile a complete datasheet from a filled template and dataset."""
+        stats = statistics or self._calculate_statistics(dataset)
+        name = dataset_name or 'Dataset'
+        return self.compile(
+            dataset=dataset,
+            statistics=stats,
+            output_path=output_path,
+            dataset_name=name,
+            version=version,
+            template_path=template_path,
+        )
 
     def compile_from_scratch(
         self,
@@ -79,126 +79,59 @@ class DatasheetCompiler:
         output_path: str,
         dataset_name: str,
         manual_content: dict[str, str] | None = None,
-        version: str = '1.0'
+        version: str = '1.0',
+        statistics: list[TabularStatistics] | None = None,
     ) -> str:
-        """Compile a datasheet from scratch with minimal manual input.
-
-        Args:
-            dataset: The tabular dataset to analyze
-            output_path: Path where to save the compiled datasheet
-            dataset_name: Name of the dataset
-            manual_content: Optional dictionary of manual content by section
-            version: Version of the datasheet
-
-        Returns:
-            Path to the compiled datasheet
-        """
-        # Create base structure
-        structure = DatasheetStructure(
-            title=f'Datasheet for {dataset_name}',
+        """Compile a datasheet from scratch with minimal manual input."""
+        stats = statistics or self._calculate_statistics(dataset)
+        return self.compile(
+            dataset=dataset,
+            statistics=stats,
+            output_path=output_path,
+            dataset_name=dataset_name,
             version=version,
-            date_created=datetime.now(timezone.utc).strftime('%Y-%m-%d')
+            manual_content=manual_content,
         )
 
-        # Add template cards with manual content if provided
-        template_structure = self.template_manager.create_datasheet_structure()
-        for card in template_structure.cards:
-            card_copy = card.model_copy(deep=True)
-            if manual_content:
-                key = self._generate_content_key(card_copy)
-                if key in manual_content:
-                    card_copy.text = manual_content[key]
-            structure.add_card(card_copy)
-
-        # Add automated analysis cards
-        self._add_automated_analysis(structure, dataset)
-
-        # Generate and save the compiled datasheet
-        self.template_manager.save_structure_as_template(structure, output_path)
-
-        return output_path
-
-    def create_datasheet_with_analysis(
+    def _calculate_statistics(
         self,
         dataset: 'pd.DataFrame | pl.DataFrame',
-        dataset_name: str,
-        output_path: str,
-        template_path: str | None = None
-    ) -> Datasheet:
-        """Create a Datasheet object with integrated analysis.
-
-        Args:
-            dataset: The tabular dataset to analyze
-            dataset_name: Name of the dataset
-            output_path: Path where to save the datasheet
-            template_path: Optional path to filled template
-
-        Returns:
-            Configured Datasheet object
-        """
-        print(f'Print because unused method: {output_path}')
-        # Create datasheet structure
-        if template_path:
-            structure = self.template_manager.load_filled_template(template_path)
-        else:
-            structure = self.template_manager.create_datasheet_structure()
-
-        # Update metadata
-        structure.title = f'Datasheet for {dataset_name}'
-        structure.date_created = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')
-
-        '''
-        # Convert structure to information cards for Datasheet
-        info_cards = [card for card in structure.cards if card.card_type != CardType.AUTOMATED]
-        '''
-        datasheet = Datasheet(
-            data=dataset,
-            analysis=None
-        )
-
-        # TODO: Use correctly
-        datasheet.store_datasheet()
-
-        return datasheet
+    ) -> list[TabularStatistics]:
+        """Calculate statistics using the default tabular context."""
+        analysis_context = TabularDataContext(strategy='auto')
+        return analysis_context.calculate_tabular_statistics(dataset)
 
     def _add_automated_analysis(
         self,
         structure: DatasheetStructure,
-        dataset: 'pd.DataFrame | pl.DataFrame'
+        dataset: 'pd.DataFrame | pl.DataFrame',
+        statistics: list[TabularStatistics],
     ) -> None:
-        """Add automated analysis cards to the datasheet structure.
-
-        Args:
-            structure: The datasheet structure to enhance
-            dataset: The dataset to analyze
-        """
-        analysis_context = TabularDataContext(strategy='auto')
-        stats_list = analysis_context.calculate_tabular_statistics(dataset)
-        summary_stat = self._select_summary_stat(stats_list)
-
-        stats_description = self._format_statistics_description(summary_stat, dataset, stats_list)
+        """Add automated analysis cards to the datasheet structure."""
+        summary_stat = self._select_summary_stat(statistics)
+        stats_description = self._format_statistics_description(summary_stat, dataset, statistics)
         stats_card = structure.find_card(
             section=DatasheetSection.AUTOMATED_ANALYSIS,
-            sub_heading='Dataset Statistics'
+            sub_heading='Dataset Statistics',
         )
 
-        if stats_card and (summary_stat or stats_list):
-            stats_card.populate_automated(stats_description, stats_list)
+        if stats_card and (summary_stat or statistics):
+            stats_card.populate_automated(stats_description, statistics)
             if summary_stat:
                 stats_card.metadata['summary_column'] = summary_stat.column_name
-        elif stats_list:
+        elif statistics:
             fallback = DatasheetInformationCard.create_automated(
                 section=DatasheetSection.AUTOMATED_ANALYSIS,
                 heading='Dataset Statistics',
                 description=stats_description,
-                result_data=stats_list
+                result_data=statistics,
             )
             structure.add_card(fallback)
 
         quality_description = self._format_quality_assessment(dataset)
         quality_card = structure.find_card(
             section=DatasheetSection.AUTOMATED_ANALYSIS,
-            sub_heading='Data Quality Assessment'
+            sub_heading='Data Quality Assessment',
         )
         if quality_card:
             quality_card.populate_automated(quality_description, [])
@@ -207,45 +140,29 @@ class DatasheetCompiler:
                 section=DatasheetSection.AUTOMATED_ANALYSIS,
                 heading='Data Quality Assessment',
                 description=quality_description,
-                result_data=[]
+                result_data=[],
             )
             structure.add_card(quality)
 
         self._fill_automated_placeholders(structure)
 
+    @staticmethod
     def _select_summary_stat(
-        self,
-        statistics: list[TabularStatistics]
+        statistics: list[TabularStatistics],
     ) -> TabularStatistics | None:
-        """Select a representative statistical summary from the list.
-
-        Args:
-            statistics: List of TabularStatistics objects
-
-        Returns:
-            A representative TabularStatistics object or None if none found
-        """
+        """Select a representative statistical summary from the list."""
         for stat in statistics:
             if stat.mean_val is not None or stat.std_val is not None:
                 return stat
         return statistics[0] if statistics else None
 
-    def _format_statistics_description( # TODO: Use formatting function of class
+    def _format_statistics_description(
         self,
         stats: TabularStatistics | None,
         dataset: 'pd.DataFrame | pl.DataFrame',
-        statistics: list[TabularStatistics]
+        statistics: list[TabularStatistics],
     ) -> str:
-        """Format a markdown description of dataset statistics.
-
-        Args:
-            stats: A representative TabularStatistics object or None
-            dataset: The dataset being analyzed
-            statistics: List of all TabularStatistics objects
-
-        Returns:
-            Formatted markdown string summarizing dataset statistics
-        """
+        """Format a markdown description of dataset statistics."""
         rows, cols = dataset.shape
         numeric_columns = sum(1 for stat in statistics if stat.mean_val is not None)
 
@@ -253,78 +170,34 @@ class DatasheetCompiler:
             '**Dataset Overview:**',
             f'- Total rows: {rows:,}',
             f'- Total columns: {cols}',
+            '',
+            '**Statistical Summary:**',
+            f'- Columns with numeric summary: {numeric_columns}',
         ]
 
-        lines.extend(['', '**Statistical Summary:**', f'- Columns with numeric summary: {numeric_columns}'])
-
-        if stats is None: # TODO: Use formatting function of class
+        if stats is None:
             lines.append('- No numeric columns detected for automatic summary.')
         else:
-            lines.append(f'- Column analysed: `{stats.column_name}`')
-            lines.append(f'- Count: {_format_number(stats.count)}')
-            lines.append(f'- Mean: {_format_number(stats.mean_val)}')
-            lines.append(f'- Standard Deviation: {_format_number(stats.std_val)}')
-            lines.append(f'- Minimum: {_format_number(stats.min_val)}')
-            lines.append(f'- Maximum: {_format_number(stats.max_val)}')
-            lines.append(f'- 25th Percentile: {_format_number(stats.lowest_quantile)}')
-            lines.append(f'- Median (50th Percentile): {_format_number(stats.middle_quantile)}')
-            lines.append(f'- 75th Percentile: {_format_number(stats.highest_quantile)}')
-            lines.append('')
-            lines.append(
-                '*Detailed statistics for every column are listed below.*'
-            )
+            lines.extend(['', stats.markdown])
 
-        return '\n'.join(lines)
+        lines.append('')
+        lines.append('*Detailed statistics for every column are listed below.*')
 
-    def _format_quality_assessment(self, dataset: 'pd.DataFrame | pl.DataFrame' ) -> str: # TODO: Use formatting function of class
-        """Format a markdown description of dataset quality.
+        return '\n'.join(lines).strip()
 
-        Args:
-            dataset: The dataset being analyzed
-
-        Returns:
-            Formatted markdown string summarizing dataset quality
-        """
-        '''
-        if isinstance(dataset, pl.DataFrame):
-            pandas_df = dataset.to_pandas()
-        else:
-            pandas_df = dataset
-
-        missing_count = int(pandas_df.isna().sum().sum())
-        total_cells = int(pandas_df.size) if pandas_df.size else 0
-        missing_percentage = (missing_count / total_cells) * 100 if total_cells else 0.0
-        complete_rows = int(pandas_df.dropna().shape[0]) if pandas_df.shape[1] else len(pandas_df)
-
-        dtype_counts = {
-            str(dtype): int(count)
-            for dtype, count in pandas_df.dtypes.astype(str).value_counts().items()
-        }
-
-        lines = [
-            '**Data Completeness:**',
-            f'- Missing values: {missing_count:,} ({missing_percentage:.2f}% of total cells)',
-            f'- Complete rows: {complete_rows:,}',
-            '',
-            '**Data Types Distribution:**'
-        ]
-
-        if dtype_counts:
-            for dtype, count in dtype_counts.items():
-                suffix = 'column' if count == 1 else 'columns'
-                lines.append(f'- {dtype}: {count} {suffix}')
-        else:
-            lines.append('- No columns detected.')
-
-        return '\n'.join(lines)'''
-        return f'Automated data quality assessment will be available in a future release.{dataset.shape}'
+    @staticmethod
+    def _format_quality_assessment(
+        dataset: 'pd.DataFrame | pl.DataFrame',
+    ) -> str:
+        """Format a markdown description of dataset quality."""
+        rows, cols = dataset.shape
+        return (
+            'Automated data quality assessment will be available in a future release.\n'
+            f'Current dataset shape: {rows:,} rows x {cols} columns.'
+        )
 
     def _fill_automated_placeholders(self, structure: DatasheetStructure) -> None:
-        """Fill in placeholder cards for pending automated analyses.
-
-        Args:
-            structure: The datasheet structure to enhance
-        """
+        """Fill in placeholder cards for pending automated analyses."""
         pending_messages = {
             'Distribution Analysis': 'Automated distribution analysis will be available in a future release.',
             'Missing Data Analysis': 'Automated missing-data diagnostics will be available in a future release.',
@@ -335,7 +208,7 @@ class DatasheetCompiler:
         for sub_heading, message in pending_messages.items():
             card = structure.find_card(
                 section=DatasheetSection.AUTOMATED_ANALYSIS,
-                sub_heading=sub_heading
+                sub_heading=sub_heading,
             )
             if card is None:
                 continue
@@ -347,14 +220,7 @@ class DatasheetCompiler:
             card.auto_populated = False
 
     def _generate_content_key(self, card: DatasheetInformationCard) -> str:
-        """Generate a key for manual content lookup.
-
-        Args:
-            card: The information card
-
-        Returns:
-            Content key string
-        """
+        """Generate a key for manual content lookup."""
         if card.sub_heading:
             return f'{card.heading}::{card.sub_heading}'
         return card.heading
