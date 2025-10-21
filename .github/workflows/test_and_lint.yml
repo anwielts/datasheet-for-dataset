@@ -33,7 +33,7 @@ jobs:
 
       - name: Run tests with uv
         run: |
-          uv sync --dev
+          uv sync --extra dev
           uv run pytest
 
   test-and-lint-single:
@@ -58,5 +58,5 @@ jobs:
 
       - name: Run tests with uv
         run: |
-          uv sync --dev
+          uv sync --extra dev
           uv run pytest

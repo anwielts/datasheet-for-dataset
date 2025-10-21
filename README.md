@@ -90,7 +90,7 @@ pip install uv
 ```bash
 uv lock
 uv sync
-uv sync --dev
+uv sync --extra dev
 ```
 
 ### Building the package
