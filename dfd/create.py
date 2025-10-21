@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, TypeVar
+from typing import TYPE_CHECKING, Any, Literal
 
 from dfd.dataset import TabularDataContext
 from dfd.datasheet.compiler import DatasheetCompiler
