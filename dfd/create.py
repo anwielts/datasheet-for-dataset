@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, TypeVar
 
 from dfd.dataset import TabularDataContext
 from dfd.datasheet.compiler import DatasheetCompiler
@@ -30,7 +30,7 @@ class Datasheet:
         self,
         data: DataFrameType,
         *,
-        analysis: TabularAnalysesStrategy[DataFrameType] | Literal['auto', 'pandas', 'polars'] | None = 'auto',
+        analysis: TabularAnalysesStrategy | Literal['auto', 'pandas', 'polars'] | None = 'auto',
         dataset_name: str | None = None,
         dataset_backend: DatasetBackend | None = None,
     ) -> None:
