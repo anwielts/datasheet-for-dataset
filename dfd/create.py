@@ -105,7 +105,8 @@ class Datasheet:
                 import polars as pl
             except ModuleNotFoundError as exc:
                 if backend == 'polars':
-                    raise ImportError('Polars backend requested but "polars" is not installed.') from exc
+                    msg = 'Polars backend requires the "polars" package to be installed.'
+                    raise ImportError(msg) from exc
             else:
                 if extension in {'.csv', '.tsv'}:
                     separator = '\t' if extension == '.tsv' else ','
@@ -120,7 +121,8 @@ class Datasheet:
             try:
                 import pandas as pd
             except ModuleNotFoundError as exc:
-                raise ImportError('Pandas backend requires the "pandas" package to be installed.') from exc
+                msg = 'Pandas backend requires the "pandas" package to be installed.'
+                raise ImportError(msg) from exc
 
             if extension == '.csv':
                 return pd.read_csv(str(file_path)), 'pandas'

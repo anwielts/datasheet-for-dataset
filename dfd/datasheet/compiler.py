@@ -21,7 +21,7 @@ class DatasheetCompiler:
     def __init__(self) -> None:
         self.template_manager = TemplateManager()
 
-    def compile(  # noqa: PLR0913
+    def compile(
         self,
         *,
         dataset: pd.DataFrame | pl.DataFrame,

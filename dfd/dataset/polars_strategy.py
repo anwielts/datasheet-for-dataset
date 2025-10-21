@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
-import polars as pl
+if TYPE_CHECKING:
+     import polars as pl
 
 from dfd.dataset.analyses import TabularAnalysesStrategy, TabularStatistics
 
