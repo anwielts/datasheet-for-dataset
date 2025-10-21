@@ -180,6 +180,10 @@ class DatasheetStructure(BaseModel):
     """
 
     title: str = Field(..., description='Title of the datasheet')
+    dataset_name: str = Field(
+        '[Please fill in your dataset name]',
+        description='Name of the dataset documented by this datasheet'
+    )
     version: str = Field('1.0', description='Version of the datasheet')
     date_created: str = Field(..., description='Date when datasheet was created')
 
@@ -314,11 +318,13 @@ class DatasheetStructure(BaseModel):
         lines = []
 
         # Header
+        # TODO: Use the template markdown header
         lines.extend([
             f'# {self.title}',
             '',
-            f'**Version:** {self.version}',
+            f'**Dataset Name:** {self.dataset_name}',
             f'**Date:** {self.date_created}',
+            f'**Version:** {self.version}',
             '',
             '---',
             ''

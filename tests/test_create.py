@@ -93,6 +93,5 @@ def test_datasheet_from_path_and_export(tmp_path):
 
     assert Path(result) == output_file
     content = output_file.read_text(encoding='utf-8')
-    assert 'Datasheet for Sample Dataset' in content
     assert 'Total rows: 2' in content
     assert 'Mean: 1.5000' in content

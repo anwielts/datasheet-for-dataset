@@ -43,7 +43,7 @@ class DatasheetCompiler:
                     if key in manual_content:
                         card.text = manual_content[key]
 
-        structure.title = f'Datasheet for {dataset_name}'
+        structure.dataset_name = dataset_name
         structure.version = version
         structure.date_created = datetime.now(timezone.utc).strftime('%Y-%m-%d')
 

@@ -42,3 +42,5 @@ def test_compiler_populates_automated_sections():
     assert 'Columns with numeric summary: 1' in content
     assert 'Detailed statistics for every column are listed below.' in content
     assert content.count('### Dataset Statistics') == 1
+    assert '# Datasheet for Dataset' in content
+    assert '**Dataset Name:** Test Dataset' in content

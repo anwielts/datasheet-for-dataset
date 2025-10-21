@@ -39,9 +39,10 @@ class TemplateManager:
             return self._cached_structure.model_copy(deep=True)
 
         structure = DatasheetStructure(
-            title='Dataset Datasheet',
-            version='1.0',
-            date_created='TBD'
+            title='Datasheet for Dataset',
+            dataset_name='[Please fill in your dataset name]',
+            version='[Please fill in the version]',
+            date_created='[Please fill in the date]'
         )
 
         # Get section names from the template
@@ -99,6 +100,17 @@ class TemplateManager:
 
         # Parse the filled template
         content = Path(template_path).read_text(encoding='utf-8')
+        header_metadata = self._parse_header_metadata(content)
+
+        if 'title' in header_metadata:
+            structure.title = header_metadata['title']
+        if 'dataset_name' in header_metadata:
+            structure.dataset_name = header_metadata['dataset_name']
+        if 'version' in header_metadata:
+            structure.version = header_metadata['version']
+        if 'date_created' in header_metadata:
+            structure.date_created = header_metadata['date_created']
+
         filled_data = self._parse_filled_template(content)
 
         # Update cards with filled content
@@ -204,6 +216,29 @@ class TemplateManager:
             filled_data[key] = '\n'.join(current_content).strip()
 
         return filled_data
+
+    def _parse_header_metadata(self, content: str) -> dict[str, str]:
+        """Extract header metadata such as title and dataset name from template content."""
+        metadata: dict[str, str] = {}
+        for line in content.splitlines():
+            stripped = line.strip()
+            if not stripped:
+                continue
+            if stripped.startswith('# '):
+                metadata['title'] = stripped[2:].strip()
+                continue
+            if stripped.startswith('**Dataset Name:**'):
+                metadata['dataset_name'] = stripped.split('**Dataset Name:**', 1)[1].strip()
+                continue
+            if stripped.startswith('**Version:**'):
+                metadata['version'] = stripped.split('**Version:**', 1)[1].strip()
+                continue
+            if stripped.startswith('**Date:**'):
+                metadata['date_created'] = stripped.split('**Date:**', 1)[1].strip()
+                continue
+            if stripped == '---':
+                break
+        return metadata
 
     def _generate_card_key(self, card: DatasheetInformationCard) -> str:
         """Generate a key for a card based on its section and subsection.
