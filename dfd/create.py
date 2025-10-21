@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from dfd.dataset import TabularDataContext
 from dfd.datasheet.compiler import DatasheetCompiler
 from dfd.datasheet.manager import TemplateManager
+from dfd._common import DatasetBackend, SUPPORTED_DATA_EXTENSIONS
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -19,9 +20,6 @@ if TYPE_CHECKING:
 else:
     DataFrameType = Any
 
-DatasetBackend = Literal['auto', 'pandas', 'polars']
-SUPPORTED_DATA_EXTENSIONS: set[str] = {'.csv', '.tsv', '.parquet', '.json'}
-
 
 class Datasheet:
     """Create, analyse, and persist datasheets for tabular datasets."""
@@ -30,7 +28,7 @@ class Datasheet:
         self,
         data: DataFrameType,
         *,
-        analysis: TabularAnalysesStrategy | Literal['auto', 'pandas', 'polars'] | None = 'auto',
+        analysis: TabularAnalysesStrategy | DatasetBackend | None = 'auto',
         dataset_name: str | None = None,
         dataset_backend: DatasetBackend | None = None,
     ) -> None:
@@ -57,7 +55,7 @@ class Datasheet:
         dataset_path: str,
         *,
         backend: DatasetBackend = 'auto',
-        analysis: TabularAnalysesStrategy[DataFrameType] | Literal['auto', 'pandas', 'polars'] | None = 'auto',
+        analysis: TabularAnalysesStrategy[DataFrameType] | DatasetBackend | None = 'auto',
         dataset_name: str | None = None,
     ) -> Datasheet:
         """Create a Datasheet instance from a dataset file."""

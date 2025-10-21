@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Generic, Literal, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar, get_args
 
 from pydantic import BaseModel
 
@@ -15,8 +15,10 @@ if TYPE_CHECKING:
 else:
     DataFrameType: TypeAlias = Any
 
+from dfd._common import DatasetBackend, ALLOWED_BACKENDS
+
 TabularDataType = TypeVar('TabularDataType', bound=DataFrameType)
-allowed_backends = {'auto', 'pandas', 'polars'}
+
 
 def _format_number(value: float | None) -> str:
     """Format a number for markdown output.
@@ -90,7 +92,7 @@ class TabularDataContext:
 
     def __init__(
         self,
-        strategy: TabularAnalysesStrategy | Literal['auto', 'pandas', 'polars'] | None = 'auto'
+        strategy: TabularAnalysesStrategy | DatasetBackend | None = 'auto'
     ) -> None:
         self._strategy_specifier = strategy
 
@@ -110,7 +112,7 @@ class TabularDataContext:
             return self._strategy_specifier, data
 
         backend = 'auto' if self._strategy_specifier is None else self._strategy_specifier
-        if backend not in allowed_backends:
+        if backend not in ALLOWED_BACKENDS:
             msg = f'Unknown analysis backend: {backend!r}'
             raise ValueError(msg)
 

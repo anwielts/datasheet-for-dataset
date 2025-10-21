@@ -6,7 +6,8 @@ import argparse
 import sys
 from pathlib import Path
 
-from dfd.create import DatasetBackend, Datasheet
+from dfd.create import Datasheet
+from dfd._common import DatasetBackend
 
 
 def _build_parser() -> argparse.ArgumentParser:
