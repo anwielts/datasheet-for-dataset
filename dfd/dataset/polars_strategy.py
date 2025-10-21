@@ -4,13 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
-if TYPE_CHECKING:
-     import polars as pl
+import polars as pl
 
 from dfd.dataset.analyses import TabularAnalysesStrategy, TabularStatistics
 
 
-class PolarsTabularAnalyses(TabularAnalysesStrategy['pl.DataFrame']):
+class PolarsTabularAnalyses(TabularAnalysesStrategy[pl.DataFrame]):
     """Polars-based implementation of tabular data analyses."""
 
     def describe(self, data: pl.DataFrame) -> list[TabularStatistics]:

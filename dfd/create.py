@@ -8,17 +8,10 @@ from typing import TYPE_CHECKING, Any, Literal
 from dfd.dataset import TabularDataContext
 from dfd.datasheet.compiler import DatasheetCompiler
 from dfd.datasheet.manager import TemplateManager
-from dfd._common import DatasetBackend, SUPPORTED_DATA_EXTENSIONS
+from dfd._common import DatasetBackend, SUPPORTED_DATA_EXTENSIONS, DataFrameType
 
 if TYPE_CHECKING:
-    import pandas as pd
-    import polars as pl
-
     from dfd.dataset.analyses import TabularAnalysesStrategy, TabularStatistics
-
-    DataFrameType = pd.DataFrame | pl.DataFrame
-else:
-    DataFrameType = Any
 
 
 class Datasheet:

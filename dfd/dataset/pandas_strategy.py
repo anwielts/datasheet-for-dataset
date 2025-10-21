@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
 
-class PandasTabularAnalyses(TabularAnalysesStrategy['pd.DataFrame']):
+class PandasTabularAnalyses(TabularAnalysesStrategy[pd.DataFrame]):
     """Pandas-based implementation of tabular data analyses."""
 
     def describe(self, data: pd.DataFrame) -> list[TabularStatistics]:

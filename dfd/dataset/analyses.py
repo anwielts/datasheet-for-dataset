@@ -3,19 +3,11 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar, get_args
+from typing import TYPE_CHECKING, Generic, Sequence, TypeVar, get_args
 
 from pydantic import BaseModel
 
-if TYPE_CHECKING:
-    import pandas as pd
-    import polars as pl
-    DataFrameType: TypeAlias = pd.DataFrame | pl.DataFrame
-    from collections.abc import Sequence
-else:
-    DataFrameType: TypeAlias = Any
-
-from dfd._common import DatasetBackend, ALLOWED_BACKENDS
+from dfd._common import DatasetBackend, ALLOWED_BACKENDS, DataFrameType
 
 TabularDataType = TypeVar('TabularDataType', bound=DataFrameType)
 
