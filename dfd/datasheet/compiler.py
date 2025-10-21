@@ -24,7 +24,7 @@ class DatasheetCompiler:
     def compile(  # noqa: PLR0913
         self,
         *,
-        dataset: 'pd.DataFrame | pl.DataFrame',
+        dataset: pd.DataFrame | pl.DataFrame,
         statistics: list[TabularStatistics],
         output_path: str,
         dataset_name: str,
@@ -55,7 +55,7 @@ class DatasheetCompiler:
     def compile_from_template(
         self,
         template_path: str,
-        dataset: 'pd.DataFrame | pl.DataFrame',
+        dataset: pd.DataFrame | pl.DataFrame,
         output_path: str,
         dataset_name: str | None = None,
         version: str = '1.0',
@@ -75,7 +75,7 @@ class DatasheetCompiler:
 
     def compile_from_scratch(
         self,
-        dataset: 'pd.DataFrame | pl.DataFrame',
+        dataset: pd.DataFrame | pl.DataFrame,
         output_path: str,
         dataset_name: str,
         manual_content: dict[str, str] | None = None,
@@ -95,7 +95,7 @@ class DatasheetCompiler:
 
     def _calculate_statistics(
         self,
-        dataset: 'pd.DataFrame | pl.DataFrame',
+        dataset: pd.DataFrame | pl.DataFrame,
     ) -> list[TabularStatistics]:
         """Calculate statistics using the default tabular context."""
         analysis_context = TabularDataContext(strategy='auto')
@@ -104,7 +104,7 @@ class DatasheetCompiler:
     def _add_automated_analysis(
         self,
         structure: DatasheetStructure,
-        dataset: 'pd.DataFrame | pl.DataFrame',
+        dataset: pd.DataFrame | pl.DataFrame,
         statistics: list[TabularStatistics],
     ) -> None:
         """Add automated analysis cards to the datasheet structure."""
@@ -159,7 +159,7 @@ class DatasheetCompiler:
     def _format_statistics_description(
         self,
         stats: TabularStatistics | None,
-        dataset: 'pd.DataFrame | pl.DataFrame',
+        dataset: pd.DataFrame | pl.DataFrame,
         statistics: list[TabularStatistics],
     ) -> str:
         """Format a markdown description of dataset statistics."""
@@ -187,7 +187,7 @@ class DatasheetCompiler:
 
     @staticmethod
     def _format_quality_assessment(
-        dataset: 'pd.DataFrame | pl.DataFrame',
+        dataset: pd.DataFrame | pl.DataFrame,
     ) -> str:
         """Format a markdown description of dataset quality."""
         rows, cols = dataset.shape

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import cast
 
 import polars as pl
 
@@ -21,7 +21,6 @@ class PolarsTabularAnalyses(TabularAnalysesStrategy['pl.DataFrame']):
         Returns:
             A list of TabularStatistics instances.
         """
-
         results: list[TabularStatistics] = []
         for column in data.columns:
             series = data[column]

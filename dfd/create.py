@@ -30,7 +30,7 @@ class Datasheet:
         self,
         data: DataFrameType,
         *,
-        analysis: 'TabularAnalysesStrategy[DataFrameType] | Literal["auto", "pandas", "polars"] | None' = 'auto',
+        analysis: TabularAnalysesStrategy[DataFrameType] | Literal['auto', 'pandas', 'polars'] | None = 'auto',
         dataset_name: str | None = None,
         dataset_backend: DatasetBackend | None = None,
     ) -> None:
@@ -39,15 +39,15 @@ class Datasheet:
         self.dataset_backend = dataset_backend
         self._analysis_specifier = analysis
         self._context = TabularDataContext(analysis)
-        self._statistics: list['TabularStatistics'] | None = None
+        self._statistics: list[TabularStatistics] | None = None
 
     @property
-    def statistics(self) -> list['TabularStatistics'] | None:
+    def statistics(self) -> list[TabularStatistics] | None:
         """Return cached statistics, if available."""
         return self._statistics
 
     @property
-    def data_statistics(self) -> list['TabularStatistics'] | None:
+    def data_statistics(self) -> list[TabularStatistics] | None:
         """Alias for backwards compatibility with the previous attribute name."""
         return self._statistics
 
@@ -57,9 +57,9 @@ class Datasheet:
         dataset_path: str,
         *,
         backend: DatasetBackend = 'auto',
-        analysis: 'TabularAnalysesStrategy[DataFrameType] | Literal["auto", "pandas", "polars"] | None' = 'auto',
+        analysis: TabularAnalysesStrategy[DataFrameType] | Literal['auto', 'pandas', 'polars'] | None = 'auto',
         dataset_name: str | None = None,
-    ) -> 'Datasheet':
+    ) -> Datasheet:
         """Create a Datasheet instance from a dataset file."""
         data, resolved_backend = cls.load_tabular_dataset(dataset_path, backend=backend)
         name = dataset_name or Path(dataset_path).stem
@@ -134,20 +134,20 @@ class Datasheet:
         msg = 'Pandas backend supports CSV, TSV, Parquet, and JSON inputs.'
         raise ValueError(msg)
 
-    def _run_analyses(self) -> list['TabularStatistics']:
+    def _run_analyses(self) -> list[TabularStatistics]:
         """Run analyses on the dataset to extract statistics and insights."""
         self._statistics = self._context.calculate_tabular_statistics(self.data)
         return self._statistics
 
-    def analyse(self) -> list['TabularStatistics']:
+    def analyse(self) -> list[TabularStatistics]:
         """Public method for triggering analysis."""
         return self._run_analyses()
 
-    def create_datasheet(self) -> list['TabularStatistics']:
+    def create_datasheet(self) -> list[TabularStatistics]:
         """Retained for backwards compatibility; delegates to analyse()."""
         return self.analyse()
 
-    def ensure_statistics(self) -> list['TabularStatistics']:
+    def ensure_statistics(self) -> list[TabularStatistics]:
         """Return cached statistics or generate them when missing."""
         if self._statistics is None:
             return self._run_analyses()
