@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Generic, Sequence, TypeVar, get_args
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 from pydantic import BaseModel
 
-from dfd._common import DatasetBackend, ALLOWED_BACKENDS, DataFrameType
+from dfd._common import ALLOWED_BACKENDS, DataFrameType, DatasetBackend
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 TabularDataType = TypeVar('TabularDataType', bound=DataFrameType)
 

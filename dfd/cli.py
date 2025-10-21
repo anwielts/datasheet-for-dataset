@@ -5,9 +5,12 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from dfd._common import DatasetBackend
 
 from dfd.create import Datasheet
-from dfd._common import DatasetBackend
 
 
 def _build_parser() -> argparse.ArgumentParser:

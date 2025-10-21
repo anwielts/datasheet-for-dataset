@@ -1,5 +1,6 @@
-from typing import TYPE_CHECKING, TypeAlias
-from typing_extensions import Literal, get_args, Any
+from typing import TYPE_CHECKING, Literal, TypeAlias, get_args
+
+from typing_extensions import Any
 
 # Types
 DatasetBackend = Literal['auto', 'pandas', 'polars']
