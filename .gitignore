@@ -181,3 +181,6 @@ examples/data/*
 
 # VS Code files
 .vscode/
+
+# MacOS files
+.DS_Store
