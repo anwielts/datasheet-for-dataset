@@ -81,6 +81,7 @@ lint.ignore = [
     "PLC0415", # Imports always top level of code
     "PLR0913", # Too many arguments -> Discuss?
     "PLR0912", # Too many branches -> Discuss?
+    "PLR0911", # Tpp ,amy return statements -> Discuss?
 ]
 # Allow fix for all enabled rules (when `--fix`) is provided.
 lint.fixable = ["ALL"]
