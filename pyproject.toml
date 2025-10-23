@@ -6,9 +6,7 @@ build-backend = "uv_build"
 name = "datasheet-for-dataset"
 version = "0.0.5"
 dependencies = [
-    "pandas",
     "numpy",
-    "polars",
     "pydantic==2.11.5"
 ]
 requires-python = ">= 3.10"
@@ -50,4 +48,6 @@ dev = [
     "pytest-cov",
     "pytest-xdist",
     "pandas-stubs",
+    "pandas",
+    "polars"
 ]

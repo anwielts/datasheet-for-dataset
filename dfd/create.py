@@ -104,8 +104,10 @@ class Datasheet:
                     return pl.read_csv(file_path, separator=separator), 'polars'
                 if extension == '.parquet':
                     return pl.read_parquet(file_path), 'polars'
+                if extension == '.json':
+                    return pl.read_json(file_path), 'polars'
                 if backend == 'polars':
-                    msg = 'Polars backend supports CSV, TSV, and Parquet inputs.'
+                    msg = 'Polars backend supports CSV, TSV, Parquet, and JSON inputs.'
                     raise ValueError(msg)
 
         if backend in {'pandas', 'auto'}:
