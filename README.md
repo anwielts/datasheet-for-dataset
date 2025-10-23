@@ -22,6 +22,9 @@ Install from PyPI:
 pip install datasheet-for-dataset
 ```
 
+### Install a suitable backend
+To use this library correctly, install a supported backend. Currently available backends are `polars` (default) and `pandas`.
+
 Install for development (editable) with optional dev tools:
 ```
 # clone the repository
