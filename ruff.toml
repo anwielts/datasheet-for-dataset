@@ -28,6 +28,11 @@ exclude = [
     "__init__.py",
 ]
 
+extend-exclude = [
+    "docs/",
+    "tests/"
+]
+
 line-length = 120
 indent-width = 4
 
