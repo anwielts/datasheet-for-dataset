@@ -1,0 +1,179 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" version="28.2.7">
+  <diagram id="class-diagram" name="Datasheet Library">
+    <mxGraphModel dx="2091" dy="2258" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="module_create" value="dfd.create" style="swimlane;fontStyle=1;horizontal=0;startSize=28;rounded=0;shadow=0;html=1;strokeColor=#1A73E8;fillColor=#E8F0FE;" parent="1" vertex="1">
+          <mxGeometry x="30" y="-160" width="250" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="class_datasheet" value="Datasheet&#xa;High-level facade for datasheet creation&#xa;+ analyse()&#xa;+ to_markdown()" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#202124;fillColor=#FFFFFF;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_create" vertex="1">
+          <mxGeometry x="30" y="30" width="200" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="module_dataset_analyses" value="dfd.dataset.analyses" style="swimlane;fontStyle=1;horizontal=0;startSize=28;rounded=0;shadow=0;html=1;strokeColor=#0B8043;fillColor=#E6F4EA;" parent="1" vertex="1">
+          <mxGeometry x="30" y="225" width="280" height="415" as="geometry" />
+        </mxCell>
+        <mxCell id="class_tabularstatistics" value="TabularStatistics&#xa;Pydantic model for column metrics&#xa;+ column_name: str&#xa;+ markdown" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#202124;fillColor=#FFFFFF;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_dataset_analyses" vertex="1">
+          <mxGeometry x="30" y="30" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="class_tabularanalysesstrategy" value="TabularAnalysesStrategy&#xa;&lt;&lt;ABC&gt;&gt;&#xa;+ describe(data)" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#202124;fillColor=#FFFFFF;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_dataset_analyses" vertex="1">
+          <mxGeometry x="30" y="185" width="240" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="class_tabularcontext" value="TabularDataContext&#xa;Resolves analysis backend&#xa;+ calculate_tabular_statistics()" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#202124;fillColor=#FFFFFF;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_dataset_analyses" vertex="1">
+          <mxGeometry x="30" y="315" width="240" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="module_dataset_pandas" value="dfd.dataset.pandas_strategy" style="swimlane;fontStyle=1;horizontal=0;startSize=28;rounded=0;shadow=0;html=1;strokeColor=#0B8043;fillColor=#E6F4EA;" parent="1" vertex="1">
+          <mxGeometry x="40" y="660" width="240" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="class_pandas" value="PandasTabularAnalyses&#xa;Pandas-specific describe implementation" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#202124;fillColor=#FFFFFF;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_dataset_pandas" vertex="1">
+          <mxGeometry x="30" y="35" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="module_dataset_polars" value="dfd.dataset.polars_strategy" style="swimlane;fontStyle=1;horizontal=0;startSize=28;rounded=0;shadow=0;html=1;strokeColor=#0B8043;fillColor=#E6F4EA;" parent="1" vertex="1">
+          <mxGeometry x="40" y="840" width="280" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="class_polars" value="PolarsTabularAnalyses&#xa;Polars-specific describe implementation" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#202124;fillColor=#FFFFFF;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_dataset_polars" vertex="1">
+          <mxGeometry x="70" y="40" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="module_datasheet_compiler" value="dfd.datasheet.compiler" style="swimlane;fontStyle=1;horizontal=0;startSize=28;rounded=0;shadow=0;html=1;strokeColor=#d79b00;fillColor=#ffe6cc;" parent="1" vertex="1">
+          <mxGeometry x="440" y="20" width="290" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="class_datasheetcompiler" value="DatasheetCompiler&#xa;Combines manual and automated content&#xa;+ compile(...)&#xa;+ compile_from_template()" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#d79b00;fillColor=#ffe6cc;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_datasheet_compiler" vertex="1">
+          <mxGeometry x="30" y="30" width="240" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="module_datasheet_manager" value="dfd.datasheet.manager" style="swimlane;fontStyle=1;horizontal=0;startSize=28;rounded=0;shadow=0;html=1;strokeColor=#A142F4;fillColor=#F3E8FD;" parent="1" vertex="1">
+          <mxGeometry x="440" y="360" width="280" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="class_templatemanager" value="TemplateManager&#xa;Manages templates and structures&#xa;+ generate_empty_template()&#xa;+ create_datasheet_structure()" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#202124;fillColor=#FFFFFF;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_datasheet_manager" vertex="1">
+          <mxGeometry x="30" y="30" width="240" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="module_utils" value="dfd.utils" style="swimlane;fontStyle=1;horizontal=0;startSize=28;rounded=0;shadow=0;html=1;strokeColor=#b85450;fillColor=#f8cecc;" parent="1" vertex="1">
+          <mxGeometry x="550" y="-280" width="240" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="class_utility" value="Utility&#xa;Legacy stubs for export helpers&#xa;+ create_empty_file()" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#b85450;fillColor=#f8cecc;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_utils" vertex="1">
+          <mxGeometry x="30" y="40" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_datasheet_context" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#202124;endArrow=block;endFill=1;endSize=12;strokeWidth=2;entryX=0.07;entryY=0.009;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="class_datasheet" target="module_dataset_analyses" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_datasheet_compiler" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#202124;endArrow=block;endFill=1;endSize=12;strokeWidth=2;" parent="1" source="class_datasheet" target="class_datasheetcompiler" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_compiler_manager" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#A142F4;endArrow=block;endFill=1;endSize=12;strokeWidth=2;" parent="1" source="class_datasheetcompiler" target="class_templatemanager" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_compiler_structure" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#A142F4;endArrow=block;endFill=1;endSize=12;" parent="1" source="class_datasheetcompiler" target="class_datasheetstructure" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_compiler_card" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#A142F4;endArrow=block;endFill=1;endSize=12;" parent="1" source="class_datasheetcompiler" target="class_datasheetcard" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_compiler_statistics" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0B8043;endArrow=block;endFill=1;endSize=12;strokeWidth=2;" parent="1" source="class_datasheetcompiler" target="class_tabularstatistics" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_manager_template" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#A142F4;endArrow=block;endFill=1;endSize=12;strokeWidth=2;" parent="1" source="class_templatemanager" target="class_datasheettemplate" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_manager_structure" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#A142F4;endArrow=block;endFill=1;endSize=12;" parent="1" source="class_templatemanager" target="class_datasheetstructure" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_manager_card" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#A142F4;endArrow=block;endFill=1;endSize=12;" parent="1" source="class_templatemanager" target="class_datasheetcard" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_manager_section" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#A142F4;dashed=1;endArrow=block;endFill=1;endSize=12;strokeWidth=2;" parent="1" source="class_templatemanager" target="class_datasheetsection" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="920" y="440" />
+              <mxPoint x="920" y="-205" />
+              <mxPoint x="1350" y="-205" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_manager_cardtype" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#A142F4;dashed=1;endArrow=block;endFill=1;endSize=12;" parent="1" source="class_templatemanager" target="class_cardtype" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_structure_section" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#A142F4;endArrow=block;endFill=1;endSize=12;strokeWidth=2;" parent="1" source="module_datasheet_structures" target="class_datasheetsection" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="980" y="630" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="810" y="-205" />
+              <mxPoint x="1350" y="-205" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_tabularcontext_strategy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0B8043;endArrow=block;endFill=1;endSize=12;strokeWidth=2;" parent="1" source="class_tabularcontext" target="class_tabularanalysesstrategy" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_pandas_inherits" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0B8043;endArrow=classicThin;endFill=1;endSize=18;strokeWidth=2;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="270" y="745" as="sourcePoint" />
+            <mxPoint x="290" y="455" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="320" y="745" />
+              <mxPoint x="320" y="450" />
+              <mxPoint x="300" y="450" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_polars_inherits" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0B8043;endArrow=classic;endFill=1;endSize=18;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="class_polars" target="class_tabularanalysesstrategy" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="340" y="925" />
+              <mxPoint x="340" y="430" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_strategy_statistics" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0B8043;dashed=1;endArrow=block;endFill=1;endSize=12;strokeWidth=2;" parent="1" source="class_tabularanalysesstrategy" target="class_tabularstatistics" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="module_datasheet_structures" value="dfd.datasheet.structures" style="swimlane;fontStyle=1;horizontal=0;startSize=28;rounded=0;shadow=0;html=1;strokeColor=#A142F4;fillColor=#F3E8FD;" parent="1" vertex="1">
+          <mxGeometry x="790" y="610" width="280" height="440" as="geometry" />
+        </mxCell>
+        <mxCell id="class_datasheetcard" value="DatasheetInformationCard&#xa;Section/subsection content holder&#xa;+ populate_automated()&#xa;+ to_markdown()" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#202124;fillColor=#FFFFFF;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_datasheet_structures" vertex="1">
+          <mxGeometry x="30" y="140" width="240" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="class_datasheetstructure" value="DatasheetStructure&#xa;Aggregates cards and metadata&#xa;+ add_card()&#xa;+ to_markdown()" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#202124;fillColor=#FFFFFF;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_datasheet_structures" vertex="1">
+          <mxGeometry x="30" y="310" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="class_cardtype" value="CardType&#xa;&lt;&lt;Enum&gt;&gt; MANUAL | AUTOMATED | MIXED" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#202124;fillColor=#FFFFFF;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_datasheet_structures" vertex="1">
+          <mxGeometry x="30" y="30" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_card_cardtype" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#A142F4;dashed=1;endArrow=block;endFill=1;endSize=12;" parent="module_datasheet_structures" source="class_datasheetcard" target="class_cardtype" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_structure_card" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#A142F4;endArrow=block;endFill=1;endSize=12;" parent="1" source="class_datasheetstructure" target="class_datasheetcard" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="module_datasheet_template" value="dfd.datasheet.template" style="swimlane;fontStyle=1;horizontal=0;startSize=28;rounded=0;shadow=0;html=1;strokeColor=#A142F4;fillColor=#F3E8FD;" parent="1" vertex="1">
+          <mxGeometry x="1240" y="390" width="240" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="class_datasheettemplate" value="DatasheetTemplate&#xa;Loads and assembles markdown sections&#xa;+ generate_empty_template()" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#202124;fillColor=#FFFFFF;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_datasheet_template" vertex="1">
+          <mxGeometry x="30" y="30" width="200" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="Yollft9yt3RZ0R_iWxBP-3" value="" style="group" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="1220" y="-180" width="240" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="module_datasheet_layout" value="dfd.datasheet.layout" style="swimlane;fontStyle=1;horizontal=0;startSize=28;rounded=0;shadow=0;html=1;strokeColor=#A142F4;fillColor=#F3E8FD;" parent="Yollft9yt3RZ0R_iWxBP-3" vertex="1">
+          <mxGeometry width="240" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="class_datasheetsection" value="DatasheetSection&#xa;&lt;&lt;Enum&gt;&gt; canonical sections" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#202124;fillColor=#FFFFFF;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_datasheet_layout" vertex="1">
+          <mxGeometry x="31.304347826086957" y="10" width="208.69565217391303" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="class_baselayout" value="BaseLayout&#xa;Validates required sections&#xa;+ get_ordered_sections()" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#202124;fillColor=#FFFFFF;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_datasheet_layout" vertex="1">
+          <mxGeometry x="31.304347826086957" y="140" width="208.69565217391303" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="Yollft9yt3RZ0R_iWxBP-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="module_datasheet_layout" source="class_safetyeu" target="class_baselayout">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="class_safetyeu" value="SafetyEU&lt;br&gt;Placeholder" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=1;strokeColor=#202124;fillColor=#FFFFFF;fontSize=12;spacingLeft=6;spacingTop=6;" parent="module_datasheet_layout" vertex="1">
+          <mxGeometry x="31.304347826086957" y="300" width="208.69565217391303" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_structure_layout" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#A142F4;dashed=1;endArrow=block;endFill=1;endSize=12;" parent="module_datasheet_layout" source="class_safetyeu" target="class_baselayout" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_baselayout_section" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#A142F4;endArrow=block;endFill=1;endSize=12;" parent="Yollft9yt3RZ0R_iWxBP-3" source="class_baselayout" target="class_datasheetsection" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
