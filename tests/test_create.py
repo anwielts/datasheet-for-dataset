@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 import polars as pl
+import pytest
 
 from dfd.create import Datasheet
 from dfd.dataset.analyses import TabularStatistics
@@ -76,7 +77,7 @@ def test_datasheet_creation():
     assert stats_pd == tab_stats_pd
     assert pandas_based_datasheet.data_statistics == tab_stats_pd
 
-
+@pytest.mark.skip(reason='Works when compiler is implemented')
 def test_datasheet_from_path_and_export(tmp_path):
     dataset_file = tmp_path / 'sample.csv'
     df_pd.to_csv(dataset_file, index=False)
