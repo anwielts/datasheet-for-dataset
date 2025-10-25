@@ -61,14 +61,15 @@ import pandas as pd
 
 from dfd import Datasheet
 
-df = pd.read_csv("data/customers.csv")
+# Load your data
+df = pd.read_csv("data/your_data.csv)
 
-# access automated statistics in-memory
+# Access automated statistics in-memory
 sheet = Datasheet(data=df)
 for stat in sheet.analyse():
     print(stat.column_name, stat.mean_val)
 
-# generate a template and export a full datasheet
+# Generate a template and export a full datasheet
 Datasheet.generate_template("docs/datasheet_template.md")
 compiled = Datasheet.from_path(
     "data/customers.csv",
