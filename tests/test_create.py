@@ -68,14 +68,14 @@ tab_stats_pd = [
 
 def test_datasheet_creation():
     polars_based_datasheet = Datasheet(data=df_pl, analysis=PolarsTabularAnalyses())
-    stats_pl = polars_based_datasheet.create_datasheet()
+    stats_pl = polars_based_datasheet.analyse()
     assert stats_pl == tab_stats_pl
     assert polars_based_datasheet.statistics == tab_stats_pl
 
     pandas_based_datasheet = Datasheet(data=df_pd, analysis=PandasTabularAnalyses())
-    stats_pd = pandas_based_datasheet.create_datasheet()
+    stats_pd = pandas_based_datasheet.analyse()
     assert stats_pd == tab_stats_pd
-    assert pandas_based_datasheet.data_statistics == tab_stats_pd
+    assert pandas_based_datasheet.statistics == tab_stats_pd
 
 @pytest.mark.skip(reason='Works when compiler is implemented')
 def test_datasheet_from_path_and_export(tmp_path):
