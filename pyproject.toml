@@ -1,14 +1,12 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.8.15,<0.9.0"]
+build-backend = "uv_build"
 
 [project]
 name = "datasheet-for-dataset"
-version = "0.0.5"
+version = "0.0.6"
 dependencies = [
-    "pandas",
     "numpy",
-    "polars",
     "pydantic==2.11.5"
 ]
 requires-python = ">= 3.10"
@@ -27,27 +25,34 @@ classifiers = [
   "Programming Language :: Python :: 3",
 ]
 
+[tool.pytest.ini_options]
+addopts = "-q --maxfail=1 --cov=dfd"
+testpaths = ["tests"]
+
+[project.scripts]
+dfd = "dfd.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/anwielts/datasheet-for-dataset"
+Repository = "https://github.com/anwielts/datasheet-for-dataset"
+
+[tool.uv.build-backend]
+packages = ["dfd"]
+module-name = "dfd"
+module-root = ""
+
 [project.optional-dependencies]
 dev = [
-    "pytest",
-    "ruff",
+    "ruff>=0.12.8",
+    "pytest>=8.3",
+    "pytest-cov",
+    "pytest-xdist",
+    "pandas-stubs",
+    "pandas",
+    "polars"
 ]
 
 docs = [
     "sphinx",
     "sphinx-rtd-theme",
 ]
-
-[tool.hatch.envs.default.scripts]
-test = "pytest"
-
-[tool.hatch.envs.default]
-dependencies = ["pytest"]
-
-
-[project.urls]
-Homepage = "https://github.com/anwielts/datasheet-for-dataset"
-Repository = "https://github.com/anwielts/datasheet-for-dataset"
-
-[tool.hatch.build.targets.wheel]
-packages = ["dfd"]

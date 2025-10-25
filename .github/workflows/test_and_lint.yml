@@ -22,18 +22,19 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install Hatch and other tools
+      - name: Install uv and other tools
         run: |
           python -m pip install --upgrade pip
-          pip install hatch ruff
+          pip install uv ruff
 
       - name: Lint with ruff
         run: |
-          ruff check .
+          uv run ruff check
 
-      - name: Run tests with Hatch
+      - name: Run tests with uv
         run: |
-          hatch run test 
+          uv sync --extra dev
+          uv run pytest
 
   test-and-lint-single:
     if: github.event_name != 'pull_request'
@@ -46,15 +47,16 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Hatch and other tools
+      - name: Install uv and other tools
         run: |
           python -m pip install --upgrade pip
-          pip install hatch ruff
+          pip install uv ruff
 
       - name: Lint with ruff
         run: |
-          ruff check .
+          uv run ruff check
 
-      - name: Run tests with Hatch
+      - name: Run tests with uv
         run: |
-          hatch run test
+          uv sync --extra dev
+          uv run pytest

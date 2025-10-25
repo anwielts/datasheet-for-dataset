@@ -9,10 +9,10 @@ Automatically create standardized documentation ("datasheets") for the datasets 
 Status: Early preview (v0.x). The public API is evolving and subject to change.
 
 ## Features
-- Define and generate dataset datasheets programmatically
-- Extensible building blocks for different data domains (images, sound, tabular)
-- Pluggable layouts and structures to match your documentation needs
-- Python-first: integrate directly into your data/ML workflows
+- Focused support for tabular datasets with pandas and polars backends
+- Automatic summary statistics and data quality diagnostics
+- Markdown templates that combine manual answers with automated insights
+- CLI and Python APIs for integrating datasheet generation into workflows
 
 ## Installation
 Prerequisites: Python 3.10+
@@ -22,6 +22,9 @@ Install from PyPI:
 pip install datasheet-for-dataset
 ```
 
+### Install a suitable backend
+To use this library correctly, install a supported backend. Currently available backends are `polars` (default) and `pandas`.
+
 Install for development (editable) with optional dev tools:
 ```
 # clone the repository
@@ -29,62 +32,92 @@ git clone https://github.com/anwielts/datasheet-for-dataset.git
 cd datasheet-for-dataset
 
 # install the package (and dev extras: pytest, ruff)
-pip install -e ".[dev]"
+uv pip install -e ".[dev]"
 ```
 
 ## Quickstart
-Create a datasheet using the high-level API:
+
+### CLI workflow
+Generate a template, fill in the manual sections, and compile the final markdown datasheet:
+
+```bash
+# create an empty questionnaire
+dfd template --output docs/datasheet_template.md
+
+# after answering the questions in docs/datasheet_template.md, combine it with a dataset
+dfd build \
+  --data data/customers.csv \
+  --template docs/datasheet_template.md \
+  --output docs/datasheet.md \
+  --name "Customer Churn" \
+  --backend auto
 ```
+
+### Python workflow
+Use the programmatic API to analyse a dataframe or to build a datasheet directly from a dataset file:
+
+```python
+import pandas as pd
+
 from dfd import Datasheet
 
-# Initialize a datasheet
-sheet = Datasheet()
+# Load your data
+df = pd.read_csv("data/your_data.csv)
 
-# Build the datasheet (runs the configured pipeline)
-sheet.create_datasheet()
+# Access automated statistics in-memory
+sheet = Datasheet(data=df)
+for stat in sheet.analyse():
+    print(stat.column_name, stat.mean_val)
 
-# Persist the datasheet (e.g., as HTML or PDF; implementation WIP)
-sheet.store_datasheet()
-```
-
-## Using analyses and layouts (preview)
-You can leverage predefined analyses for specific data domains and choose a layout style. These building blocks are available today, and the configuration APIs will be expanded in future releases.
-```
-from dfd import Datasheet
-from dfd.dataset import ImageAnalyses, SoundAnalyses, TabularAnalyses
-from dfd.datasheet import SafetyEU, BaseLayout, HumanDatasheet, NonHumanDatasheet
-
-image_analyses = ImageAnalyses()
-layout = SafetyEU()           # or: BaseLayout()
-structure = HumanDatasheet()  # or: NonHumanDatasheet()
-
-sheet = Datasheet()
-# Upcoming releases will provide a clear way to attach analyses/layout/structure
-# e.g., sheet.configure(analyses=image_analyses, layout=layout, structure=structure)
-
-sheet.create_datasheet()
-sheet.store_datasheet()
+# Generate a template and export a full datasheet
+Datasheet.generate_template("docs/datasheet_template.md")
+compiled = Datasheet.from_path(
+    "data/customers.csv",
+    backend="auto",
+    dataset_name="Customer Churn",
+)
+compiled.to_markdown(
+    output_path="docs/auto_datasheet.md",
+    template_path=None,
+    version="1.0",
+)
 ```
 
 ## Development
 After setting up the project for development (see Installation), you can use the following commands:
 
+### Install uv with:
+```bash
+pip install uv
+```
+### Lock dependencies / sync project
+```bash
+uv lock
+uv sync
+uv sync --extra dev
+```
+
+### Building the package
+```bash
+uv build
+```
+
 ### Running Tests
 ```bash
 # Run tests using hatch
-hatch run test
+uv run pytest
 ```
 
 ### Code Quality with Ruff
 ```bash
 # Check for linting issues
-ruff check .
+uv run ruff check .
 
 # Auto-fix linting issues where possible
-ruff check . --fix
+uv run ruff check . --fix
 
 # Format code (optional)
-ruff format .
+uv run ruff format .
 ```
 
 ## Links

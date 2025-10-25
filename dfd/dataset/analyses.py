@@ -1,220 +1,156 @@
-"""Analyses to run depending on the type of data domain"""
-from abc import ABC, abstractmethod
+"""Tabular data analyses utilities."""
 
-import pandas as pd
-import polars as pl
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Generic, TypeVar
+
 from pydantic import BaseModel
+
+from dfd._common import ALLOWED_BACKENDS, DataFrameType, DatasetBackend
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+TabularDataType = TypeVar('TabularDataType', bound=DataFrameType)
+
+
+def _format_number(value: float | None) -> str:
+    """Format a number for markdown output.
+
+    Args:
+        value: The number to format.
+
+    Returns:
+        The formatted number as a string.
+    """
+    if value is None:
+        return 'N/A'
+    if isinstance(value, float):
+        return f'{value:.4f}'
+    return f'{value}'
 
 
 class TabularStatistics(BaseModel):
+    """Statistical analysis of a tabular data column."""
     column_name: str
-    count: float = None
-    highest_quantile: float | None = None # 75% percentile
-    middle_quantile: float | None = None # 50% percentile
-    lowest_quantile: float | None = None # 25% percentile
+    count: float | None = None
+    highest_quantile: float | None = None
+    middle_quantile: float | None = None
+    lowest_quantile: float | None = None
     max_val: float | None = None
     min_val: float | None = None
     mean_val: float | None = None
     std_val: float | None = None
 
-TabularDataType = pd.DataFrame | pl.DataFrame
+    @property
+    def markdown(self) -> str:
+        """Return the statistics as a markdown string."""
+        lines: list[str] = [f'**Column: {self.column_name}**']
+        lines.append(f'- Count: {_format_number(self.count)}')
+        lines.append(f'- Mean: {_format_number(self.mean_val)}')
+        lines.append(f'- Standard Deviation: {_format_number(self.std_val)}')
+        lines.append(f'- Min: {_format_number(self.min_val)}')
+        lines.append(f'- Max: {_format_number(self.max_val)}')
+        lines.append(f'- 25th Percentile: {_format_number(self.lowest_quantile)}')
+        lines.append(f'- Median: {_format_number(self.middle_quantile)}')
+        lines.append(f'- 75th Percentile: {_format_number(self.highest_quantile)}')
+        return '\n'.join(lines)
 
-
-class BaseAnalyses:
-    def __init__(self):
-        # Define base analyses which should be run regardless of the data domain
-        pass
-
-
-class ImageAnalyses:
-    def __init__(self):
-        # Define base analyses which should be run on image datasets
-        pass
-
-
-class SoundAnalyses:
-    def __init__(self):
-        # Define base analyses which should be run on sound datasets
-        pass
-
-
-class TabularAnalysesStrategy(ABC):
-    """Tabular analyses strategy interface defining common methods for all tabular analyses."""
-    @abstractmethod
-    def describe(self, data: TabularDataType) -> None:
-        """Describes the tabular data.
+    @staticmethod
+    def format_tabular_statistics_to_markdown(statistics: Sequence[TabularStatistics]) -> str:
+        """Format a list of TabularStatistics to a markdown string.
 
         Args:
-            data (TabularDataType): The input tabular data to be analyzed.
+            statistics: The list of TabularStatistics to format.
 
         Returns:
-            None
+            The formatted markdown string.
         """
+        if not statistics:
+            return ''
+        lines = ['#### Statistical Analysis', '']
+        for stat in statistics:
+            lines.append(stat.markdown)
+            lines.append('')
+        return '\n'.join(lines).rstrip()
+
+
+class TabularAnalysesStrategy(ABC, Generic[TabularDataType]):
+    @abstractmethod
+    def describe(self, data: TabularDataType) -> list[TabularStatistics]:
+        """Return statistics for the given dataframe."""
 
 
 class TabularDataContext:
-    """Tabular data context defining the interfaces to clients.
+    """Resolve an analysis strategy for the provided tabular data."""
 
-    Attributes:
-        _strategy (TabularAnalysesStrategy): The strategy used for calculating tabular statistics.
-    """
-    def __init__(self, strategy: TabularAnalysesStrategy) -> None:
-        """Initialize a new instance of TabularDataContext with the specified strategy."""
-        self._strategy = strategy
+    def __init__(
+        self,
+        strategy: TabularAnalysesStrategy | DatasetBackend | None = 'auto'
+    ) -> None:
+        self._strategy_specifier = strategy
 
-
-    @property
-    def strategy(self) -> TabularAnalysesStrategy:
-        """Get the current strategy used for calculating tabular statistics.
-
-        Returns:
-            TabularAnalysesStrategy: The current strategy.
-        """
-        return self._strategy
-
-
-    @strategy.setter
-    def strategy(self, strategy: TabularAnalysesStrategy) -> None:
-        """Set a new strategy for calculating tabular statistics.
+    def _resolve_strategy(
+        self,
+        data: DataFrameType
+    ) -> tuple[TabularAnalysesStrategy, DataFrameType]:
+        """Resolve the analysis strategy and prepare the data if necessary.
 
         Args:
-            strategy (TabularAnalysesStrategy): A tabular analysis strategy.
+            data: The tabular data to analyze.
 
         Returns:
-            None
+            A tuple of the resolved strategy and the prepared data.
         """
-        self._strategy = strategy
+        if isinstance(self._strategy_specifier, TabularAnalysesStrategy):
+            return self._strategy_specifier, data
 
+        backend = 'auto' if self._strategy_specifier is None else self._strategy_specifier
+        if backend not in ALLOWED_BACKENDS:
+            msg = f'Unknown analysis backend: {backend!r}'
+            raise ValueError(msg)
 
-    def calculate_tabular_statistics(self, data: TabularDataType) -> None:
-        """Calculate and return the statistical information of the given tabular data.
+        if backend == 'auto':
+            import pandas as pd
+            if isinstance(data, pd.DataFrame):
+                from dfd.dataset.pandas_strategy import PandasTabularAnalyses
+                return PandasTabularAnalyses(), data
+            import polars as pl
+            if isinstance(data, pl.DataFrame):
+                from dfd.dataset.polars_strategy import PolarsTabularAnalyses
+                return PolarsTabularAnalyses(), data
+            msg = f'Unsupported dataframe type: {type(data)!r}. Only pandas and polars are supported.'
+            raise TypeError(msg)
+
+        if backend == 'pandas':
+            import pandas as pd
+            if not isinstance(data, pd.DataFrame):
+                msg = 'Only pandas DataFrame can be analyzed with pandas backend.'
+                raise TypeError(msg)
+            from dfd.dataset.pandas_strategy import PandasTabularAnalyses
+            return PandasTabularAnalyses(), data
+
+        if backend == 'polars':
+            import polars as pl
+            if not isinstance(data, pl.DataFrame):
+                msg = 'Only polars DataFrame can be analyzed with polars backend.'
+                raise TypeError(msg)
+            from dfd.dataset.polars_strategy import PolarsTabularAnalyses
+            return PolarsTabularAnalyses(), data
+
+        msg = f'Unhandled backend: {backend!r}'
+        raise ValueError(msg)
+
+    def calculate_tabular_statistics(self, data: DataFrameType) -> list[TabularStatistics]:
+        """Calculate tabular statistics for the provided data.
 
         Args:
-            data (TabularDataType): The data for which to calculate statistics.
+            data: The tabular data to analyze.
 
         Returns:
-            The result of the dedicatedly implemented analysis description method.
+            A list of TabularStatistics instances.
         """
-        return self._strategy.describe(data)
+        strategy, prepared = self._resolve_strategy(data)
+        return strategy.describe(prepared)
 
-
-class PolarsTabularAnalyses(TabularAnalysesStrategy):
-    """Polars-based implementation of Tabular Analyses Strategy.
-
-    This class extends the `TabularAnalysesStrategy` to analyze tabular data using polars.
-    """
-    def describe(self, data: pl.DataFrame) -> list[TabularStatistics]:
-        """
-        Describes the given dataframe by calculating various statistical measures such as count,
-        mean, standard deviation, min, max, and 23%/50%/75% quantiles.
-
-        Parameters:
-            data (pl.DataFrame): The input Polars DataFrame to be analyzed.
-
-        Returns:
-            list[TabularStatistics]: A list of TabularStatistics objects containing
-                                    computed statistics for each column.
-        """
-        statistics = data.describe()
-        return self._harmonized_statistics_structure(statistics)
-
-
-    def _harmonized_statistics_structure(self, statistics_data: pl.DataFrame) -> list[TabularStatistics]:
-        """
-        Constructs a structured representation of the given statistics data.
-
-        Parameters:
-            statistics_data (pl.DataFrame): The input DataFrame containing statistical information.
-
-        Returns:
-            list[TabularStatistics]: A list of TabularStatistics objects.
-        """
-        tabular_statistics = []
-        for column in statistics_data.columns:
-            if column != 'statistic':
-                count = statistics_data.filter(pl.col('statistic') == 'count').select(pl.col(column))
-                highest_quantile = statistics_data.filter(pl.col('statistic') == '75%').select(pl.col(column))
-                middle_quantile = statistics_data.filter(pl.col('statistic') == '50%').select(pl.col(column))
-                lowest_quantile = statistics_data.filter(pl.col('statistic') == '25%').select(pl.col(column))
-                max_val_col = statistics_data.filter(pl.col('statistic') == 'max').select(pl.col(column))
-                min_val_col = statistics_data.filter(pl.col('statistic') == 'min').select(pl.col(column))
-                # polars sets max and min in categorical columns not how we want it so fix them here as None if they are srtings
-                if isinstance(max_val_col.item(), str) and isinstance(min_val_col.item(), str):
-                    max_val = None
-                    min_val = None
-                else:
-                    max_val = max_val_col.item()
-                    min_val = min_val_col.item()
-
-                mean_val_col = statistics_data.filter(pl.col('statistic') == 'mean').select(pl.col(column))
-                std_val_col = statistics_data.filter(pl.col('statistic') == 'std').select(pl.col(column))
-
-                tab_stats = TabularStatistics(column_name=column,
-                                            count=count.item(),
-                                            highest_quantile = highest_quantile.item(),
-                                            middle_quantile = middle_quantile.item(),
-                                            lowest_quantile = lowest_quantile.item(),
-                                            max_val = max_val,
-                                            min_val = min_val,
-                                            mean_val = mean_val_col.item(),
-                                            std_val = std_val_col.item()
-                                            )
-
-                tabular_statistics.append(tab_stats)
-
-        return tabular_statistics
-
-
-class PandasTabularAnalyses(TabularAnalysesStrategy):
-    """Pandas-based implementation of Tabular Analyses Strategy.
-
-    This class extends the `TabularAnalysesStrategy` to analyze tabular data using pandas.
-    """
-    def describe(self, data: pd.DataFrame) -> list[TabularStatistics]:
-        """Describe the given DataFrame and return a list of statistics.
-
-        Args:
-            data (pd.DataFrame): The input DataFrame for analysis.
-
-        Returns:
-            list[TabularStatistics]: A list of tabular statistics including count, highest quantile,
-                                    middle quantile, lowest quantile, maximum, minimum, mean, and standard deviation.
-        """
-        statistics = data.describe(include='all')
-        return self._harmonized_statistics_structure(statistics)
-
-
-    def _harmonized_statistics_structure(self, statistics_data: pd.DataFrame) -> list[TabularStatistics]:
-        """Harmonize the pandas DataFrame statistics into a structured list of TabularStatistics.
-
-        Args:
-            statistics_data (pd.DataFrame): The input pandas DataFrame containing statistical data.
-
-        Returns:
-            list[TabularStatistics]: A list of structured tabular statistics.
-        """
-        tabular_statistics = []
-        statistics_data = statistics_data.where(statistics_data.notna(), None)
-        for column in statistics_data:
-            count = statistics_data[column].loc[['count']]
-            highest_quantile = statistics_data[column].loc[['75%']]
-            middle_quantile = statistics_data[column].loc[['50%']]
-            lowest_quantile = statistics_data[column].loc[['25%']]
-            max_val_col = statistics_data[column].loc[['max']]
-            min_val_col = statistics_data[column].loc[['min']]
-            mean_val_col = statistics_data[column].loc[['mean']]
-            std_val_col = statistics_data[column].loc[['std']]
-
-            tab_stats = TabularStatistics(column_name=column,
-                                                count=count.item(),
-                                                highest_quantile = highest_quantile.item(),
-                                                middle_quantile = middle_quantile.item(),
-                                                lowest_quantile = lowest_quantile.item(),
-                                                max_val = max_val_col.item(),
-                                                min_val = min_val_col.item(),
-                                                mean_val = mean_val_col.item(),
-                                                std_val = std_val_col.item()
-                                                )
-            tabular_statistics.append(tab_stats)
-
-        return tabular_statistics

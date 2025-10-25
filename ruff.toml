@@ -36,7 +36,7 @@ extend-exclude = [
 line-length = 120
 indent-width = 4
 
-target-version = "py311"
+target-version = "py310"
 
 lint.select = [
     "ALL", # include all the rules, including new ones
@@ -74,6 +74,14 @@ lint.ignore = [
     "TD003",
     "FIX002", # too verbose descriptions of todos
     "S101", # Use of `assert` statements
+    "T201", # Print statements forbidden
+    "INP001", # Examples do not count as package
+    "UP006", # Type annotations should not be strings.
+    "RET504", # Unecessary assignment before return
+    "PLC0415", # Imports always top level of code
+    "PLR0913", # Too many arguments -> Discuss?
+    "PLR0912", # Too many branches -> Discuss?
+    "PLR0911", # Tpp ,amy return statements -> Discuss?
 ]
 # Allow fix for all enabled rules (when `--fix`) is provided.
 lint.fixable = ["ALL"]

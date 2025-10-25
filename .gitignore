@@ -175,3 +175,12 @@ cython_debug/
 
 # Idea files
 .idea/
+
+# Data files
+examples/data/*
+
+# VS Code files
+.vscode/
+
+# MacOS files
+.DS_Store
