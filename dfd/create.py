@@ -37,11 +37,6 @@ class Datasheet:
         """Return cached statistics, if available."""
         return self._statistics
 
-    @property
-    def data_statistics(self) -> list[TabularStatistics] | None:
-        """Alias for backwards compatibility with the previous attribute name."""
-        return self._statistics
-
     @classmethod
     def from_path(
         cls,
@@ -137,10 +132,6 @@ class Datasheet:
     def analyse(self) -> list[TabularStatistics]:
         """Public method for triggering analysis."""
         return self._run_analyses()
-
-    def create_datasheet(self) -> list[TabularStatistics]:
-        """Retained for backwards compatibility; delegates to analyse()."""
-        return self.analyse()
 
     def ensure_statistics(self) -> list[TabularStatistics]:
         """Return cached statistics or generate them when missing."""
