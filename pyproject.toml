@@ -7,7 +7,8 @@ name = "datasheet-for-dataset"
 version = "0.0.6"
 dependencies = [
     "numpy",
-    "pydantic==2.11.5"
+    "pydantic==2.11.5",
+    "typer==0.20.0"
 ]
 requires-python = ">= 3.10"
 authors = [
@@ -30,7 +31,7 @@ addopts = "-q --maxfail=1 --cov=dfd"
 testpaths = ["tests"]
 
 [project.scripts]
-dfd = "dfd.cli:main"
+dfd = "dfd.cli:typer_main"
 
 [project.urls]
 Homepage = "https://github.com/anwielts/datasheet-for-dataset"
