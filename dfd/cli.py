@@ -2,108 +2,129 @@
 
 from __future__ import annotations
 
-import argparse
-import sys
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
+
+import typer
+from rich import print
+from rich.panel import Panel
 
 if TYPE_CHECKING:
     from dfd._common import DatasetBackend
 
 from dfd.create import Datasheet
 
+app = typer.Typer(
+    help='Generate datasheets for tabular datasets.',
+    rich_markup_mode='markdown',
+)
 
-def _build_parser() -> argparse.ArgumentParser:
-    """Construct the argument parser for the CLI."""
-    parser = argparse.ArgumentParser(
-        description='Generate datasheets for tabular datasets.',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=(
-            'Examples:\n'
-            '  dfd template --output docs/datasheet_template.md\n'
-            '  dfd build --data data/customers.csv --template filled_template.md --output docs/datasheet.md\n'
-            '  dfd build --data data/customers.csv --output docs/auto_datasheet.md --backend polars'
+
+@app.command()
+def template(
+    output: Annotated[
+        str,
+        typer.Option(
+            '--output', '-o',
+            help='Output path for the template file'
         )
-    )
+    ] = 'datasheet_template.md',
+):
+    """Generate an empty datasheet template."""
+    try:
+        output_file = Datasheet.generate_template(output)
+    except (OSError, ValueError) as exc:
+        print(f'[bold red]❌ Failed to generate template:[/bold red] {exc}')
+        raise typer.Exit(code=1) from exc
 
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
+    print('[bold green]✅ Template generated[/bold green]')
+    print(f'📄 Saved to: [bold blue]{output_file}[/bold blue]')
 
-    template_parser = subparsers.add_parser('template', help='Generate an empty datasheet template')
-    template_parser.add_argument(
-        '--output', '-o',
-        type=str,
-        help='Output path for the template file (default: datasheet_template.md)'
-    )
-
-    build_parser = subparsers.add_parser('build', help='Compile a datasheet for a tabular dataset')
-    build_parser.add_argument('--data', '-d', required=True, help='Path to the dataset (CSV/TSV/Parquet/JSON)')
-    build_parser.add_argument('--template', '-t', help='Path to a filled template markdown file')
-    build_parser.add_argument('--output', '-o', default='complete_datasheet.md', help='Output path for the compiled datasheet')
-    build_parser.add_argument('--name', '-n', help='Dataset name to show in the datasheet heading')
-    build_parser.add_argument('--version', '-v', default='1.0', help='Datasheet version string')
-    build_parser.add_argument(
-        '--backend',
-        choices=['auto', 'pandas', 'polars'],
-        default='auto',
-        help='Dataframe backend used for loading and analysing the dataset'
-    )
-
-    return parser
+    print(Panel.fit(
+        '  - Fill in the template with dataset context\n'
+        '  - Run [bold cyan]dfd build --data <file> --template <filled_template>[/bold cyan] to merge analysis',
+        title='Next steps',
+        border_style='green'
+    ))
 
 
-def main(argv: list[str] | None = None) -> int:
-    """Main entry point for the CLI.
+@app.command()
+def build(
+    data: Annotated[
+        str,
+        typer.Option(
+            '--data', '-d',
+            help='Path to the dataset (CSV/TSV/Parquet/JSON)'
+        )
+    ],
+    template: Annotated[
+        str | None,
+        typer.Option(
+            '--template', '-t',
+            help='Path to a filled template markdown file'
+        )
+    ] = None,
+    output: Annotated[
+        str,
+        typer.Option(
+            '--output', '-o',
+            help='Output path for the compiled datasheet'
+        )
+    ] = 'complete_datasheet.md',
+    name: Annotated[
+        str | None,
+        typer.Option(
+            '--name', '-n',
+            help='Dataset name to show in the datasheet heading'
+        )
+    ] = None,
+    version: Annotated[
+        str,
+        typer.Option(
+            '--version', '-v',
+            help='Datasheet version string'
+        )
+    ] = '1.0',
+    backend: Annotated[
+        DatasetBackend,
+        typer.Option(
+            '--backend',
+            help='Dataframe backend used for loading and analysing the dataset',
+            case_sensitive=False,
+        )
+    ] = 'auto',
+):
+    """Compile a datasheet for a tabular dataset."""
+    # Convert string backend to enum if needed, though Typer handles Enums well if hinted correctly.
+    # DatasetBackend is likely a StrEnum or similar based on usage.
 
-    Args:
-        argv: List of command-line arguments. If None, uses sys.argv.
+    try:
+        datasheet = Datasheet.from_path(
+            data,
+            backend=backend,
+            dataset_name=name,
+            analysis=backend,
+        )
+        result = datasheet.to_markdown(
+            output_path=output,
+            template_path=template,
+            version=version,
+        )
+    except (FileNotFoundError, ValueError, RuntimeError) as exc:
+        print(f'[bold red]❌ Failed to build datasheet:[/bold red] {exc}')
+        raise typer.Exit(code=1) from exc
 
-    Returns:
-        Exit code (0 for success, 1 for failure).
-    """
-    parser = _build_parser()
-    args = parser.parse_args(argv)
+    print('[bold green]✅ Datasheet created[/bold green]')
+    print(f'📄 Saved to: [bold blue]{Path(result).absolute()}[/bold blue]')
+    if not template:
+        print('[yellow]ℹ️ Generated using automated analysis only (no manual template provided).[/yellow]')
 
-    if args.command == 'template':
-        try:
-            output_file = Datasheet.generate_template(args.output)
-        except (OSError, ValueError) as exc:
-            print(f'❌ Failed to generate template: {exc}')
-            return 1
 
-        print('✅ Template generated')
-        print(f'📄 Saved to: {output_file}')
-        print('\nNext steps:')
-        print('  - Fill in the template with dataset context')
-        print('  - Run `dfd build --data <file> --template <filled_template>` to merge analysis')
-        return 0
-
-    if args.command == 'build':
-        backend: DatasetBackend = args.backend
-        try:
-            datasheet = Datasheet.from_path(
-                args.data,
-                backend=backend,
-                dataset_name=args.name,
-                analysis=backend,
-            )
-            result = datasheet.to_markdown(
-                output_path=args.output,
-                template_path=args.template,
-                version=args.version,
-            )
-        except (FileNotFoundError, ValueError, RuntimeError) as exc:
-            print(f'❌ Failed to build datasheet: {exc}')
-            return 1
-
-        print('✅ Datasheet created')
-        print(f'📄 Saved to: {Path(result).absolute()}')
-        if not args.template:
-            print('ℹ️ Generated using automated analysis only (no manual template provided).') # noqa: RUF001
-        return 0
-
-    parser.print_help()
-    return 1
+def typer_main():
+    """Entry point for the CLI."""
+    app()
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    typer_main()
+

@@ -81,7 +81,9 @@ lint.ignore = [
     "PLC0415", # Imports always top level of code
     "PLR0913", # Too many arguments -> Discuss?
     "PLR0912", # Too many branches -> Discuss?
-    "PLR0911", # Tpp ,amy return statements -> Discuss?
+    "PLR0911", # Tpp ,amy return statements -> Discuss?,
+    "RUF001", # Emoji,
+    "A004", # Function is shadowing Python builtins (print)
 ]
 # Allow fix for all enabled rules (when `--fix`) is provided.
 lint.fixable = ["ALL"]
