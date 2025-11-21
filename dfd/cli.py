@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
+from rich import print
+from rich.panel import Panel
 
 from dfd.create import Datasheet
 from dfd._common import DatasetBackend
@@ -30,14 +32,18 @@ def template(
     try:
         output_file = Datasheet.generate_template(output)
     except (OSError, ValueError) as exc:
-        print(f"❌ Failed to generate template: {exc}")
+        print(f"[bold red]❌ Failed to generate template:[/bold red] {exc}")
         raise typer.Exit(code=1)
 
-    print("✅ Template generated")
-    print(f"📄 Saved to: {output_file}")
-    print("\nNext steps:")
-    print("  - Fill in the template with dataset context")
-    print("  - Run `dfd build --data <file> --template <filled_template>` to merge analysis")
+    print("[bold green]✅ Template generated[/bold green]")
+    print(f"📄 Saved to: [bold blue]{output_file}[/bold blue]")
+    
+    print(Panel.fit(
+        "  - Fill in the template with dataset context\n"
+        "  - Run [bold cyan]dfd build --data <file> --template <filled_template>[/bold cyan] to merge analysis",
+        title="Next steps",
+        border_style="green"
+    ))
 
 
 @app.command()
@@ -103,13 +109,13 @@ def build(
             version=version,
         )
     except (FileNotFoundError, ValueError, RuntimeError) as exc:
-        print(f"❌ Failed to build datasheet: {exc}")
+        print(f"[bold red]❌ Failed to build datasheet:[/bold red] {exc}")
         raise typer.Exit(code=1)
 
-    print("✅ Datasheet created")
-    print(f"📄 Saved to: {Path(result).absolute()}")
+    print("[bold green]✅ Datasheet created[/bold green]")
+    print(f"📄 Saved to: [bold blue]{Path(result).absolute()}[/bold blue]")
     if not template:
-        print("ℹ️ Generated using automated analysis only (no manual template provided).")
+        print("[yellow]ℹ️ Generated using automated analysis only (no manual template provided).[/yellow]")
 
 
 def typer_main():
