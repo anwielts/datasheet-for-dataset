@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 import typer
 from rich import print
 from rich.panel import Panel
 
-from dfd._common import DatasetBackend
+if TYPE_CHECKING:
+    from dfd._common import DatasetBackend
+
 from dfd.create import Datasheet
 
 app = typer.Typer(
@@ -33,7 +35,7 @@ def template(
         output_file = Datasheet.generate_template(output)
     except (OSError, ValueError) as exc:
         print(f'[bold red]❌ Failed to generate template:[/bold red] {exc}')
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from exc
 
     print('[bold green]✅ Template generated[/bold green]')
     print(f'📄 Saved to: [bold blue]{output_file}[/bold blue]')
@@ -110,7 +112,7 @@ def build(
         )
     except (FileNotFoundError, ValueError, RuntimeError) as exc:
         print(f'[bold red]❌ Failed to build datasheet:[/bold red] {exc}')
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from exc
 
     print('[bold green]✅ Datasheet created[/bold green]')
     print(f'📄 Saved to: [bold blue]{Path(result).absolute()}[/bold blue]')
